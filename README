@@ -1,0 +1,4 @@
+densitas is a C++ library for density estimation of regression problems.
+
+With densitas you can estimate the quantiles of the unknown probability
+distribution around the true value for each event.
