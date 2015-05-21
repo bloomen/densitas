@@ -1,11 +1,11 @@
 #pragma once
-#include <vector>
 #include "type_check.hpp"
 #include "math.hpp"
 #include "model_adaptor.hpp"
 #include "matrix_adaptor.hpp"
 #include "vector_adaptor.hpp"
 #include "manipulation.hpp"
+#include <vector>
 
 
 namespace densitas {
