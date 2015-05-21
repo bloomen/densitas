@@ -128,11 +128,11 @@ VectorType linspace(ElementType start, ElementType end, size_t n)
     if (!(n > 1))
         throw densitas::densitas_error("n must be larger than one, not: " + std::to_string(n));
     const auto delta = (end - start) / (n - 1);
-    auto result = densitas::vector_adaptor::construct_uninitialized<VectorType>(n);
+    auto linspace = densitas::vector_adaptor::construct_uninitialized<VectorType>(n);
     for (size_t i=0; i<n; ++i) {
-        densitas::vector_adaptor::set_element<ElementType>(result, i, start + i*delta);
+        densitas::vector_adaptor::set_element<ElementType>(linspace, i, start + i*delta);
     }
-    return result;
+    return linspace;
 }
 
 
@@ -143,13 +143,13 @@ VectorType centers(const VectorType& vector)
     const auto n_elem = densitas::vector_adaptor::n_elements(vector);
     if (!(n_elem > 1))
         throw densitas::densitas_error("size of vector must be larger than one, not: " + std::to_string(n_elem));
-    auto result = densitas::vector_adaptor::construct_uninitialized<VectorType>(n_elem - 1);
+    auto centers = densitas::vector_adaptor::construct_uninitialized<VectorType>(n_elem - 1);
     for (size_t i=0; i<n_elem-1; ++i) {
         const auto first = densitas::vector_adaptor::get_element<ElementType>(vector, i);
         const auto second = densitas::vector_adaptor::get_element<ElementType>(vector, i+1);
-        densitas::vector_adaptor::set_element<ElementType>(result, i, (first + second) / 2);
+        densitas::vector_adaptor::set_element<ElementType>(centers, i, (first + second) / 2);
     }
-    return result;
+    return centers;
 }
 
 
