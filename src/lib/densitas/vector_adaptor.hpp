@@ -1,5 +1,5 @@
 #pragma once
-#include <type_traits>
+#include "type_check.hpp"
 
 
 namespace densitas {
