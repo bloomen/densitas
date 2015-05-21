@@ -3,7 +3,7 @@
 
 COLLECTION(density_estimator) {
 
-typedef densitas::density_estimator<double, matrix_t, vector_t, mock_model> estimator_t;
+typedef densitas::density_estimator<mock_model, matrix_t, vector_t> estimator_t;
 
 struct extended_estimator : estimator_t {
 
