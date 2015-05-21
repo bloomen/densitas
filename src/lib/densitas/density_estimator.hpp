@@ -21,11 +21,11 @@ namespace densitas {
  * model given by the user.
  *
  * ModelType: Operations on the model type are defined in model_adaptor.hpp.
- *            Specialize functions in there if your model does things differently
+ *            Specialize the functions in there if your model does things differently
  * MatrixType: Operations on the matrix type are defined in matrix_adaptor.hpp.
- *             Specialize functions in there if your matrix does things differently
+ *             Specialize the functions in there if your matrix does things differently
  * VectorType: Operations on the vector type are defined in vector_adaptor.hpp.
- *             Specialize functions in there if your vector does things differently
+ *             Specialize the functions in there if your vector does things differently
  * ElementType: Must be an arithmetic type, e.g., float or double
  */
 template<typename ModelType, typename MatrixType, typename VectorType, typename ElementType=double>
