@@ -2,3 +2,12 @@ densitas is a C++ library for density estimation of regression problems.
 
 With densitas you can estimate the quantiles of the unknown probability
 distribution around the true value for each event.
+
+For further insight have a look at densitas/density_estimator.hpp
+
+A real world example can be found at test/real_world_with_liblinear.cpp
+
+To build and run the tests the following libraries are required:
+- liblinear (http://www.csie.ntu.edu.tw/~cjlin/liblinear)
+- armadillo (http://arma.sourceforge.net)
+- libunittest (http://libunittest.sourceforge.net)
