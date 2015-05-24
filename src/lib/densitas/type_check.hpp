@@ -7,7 +7,7 @@ namespace core {
 
 
 template<typename ElementType>
-constexpr void check_element_type()
+void check_element_type()
 {
     static_assert(std::is_floating_point<ElementType>::value, "element type is not a floating point type");
 }
