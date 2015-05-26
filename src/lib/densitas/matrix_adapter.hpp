@@ -3,7 +3,7 @@
 
 
 namespace densitas {
-namespace matrix_adaptor {
+namespace matrix_adapter {
 
 
 template<typename MatrixType>
@@ -43,5 +43,5 @@ void set_element(MatrixType& matrix, size_t row_index, size_t col_index, Element
 }
 
 
-} // matrix_adaptor
+} // matrix_adapter
 } // densitas

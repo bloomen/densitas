@@ -37,13 +37,13 @@ struct mock_model {
 };
 
 
-constexpr int no = densitas::model_adaptor::no<mock_model>();
+constexpr int no = densitas::model_adapter::no<mock_model>();
 
-constexpr int yes = densitas::model_adaptor::yes<mock_model>();
+constexpr int yes = densitas::model_adapter::yes<mock_model>();
 
 
 namespace densitas {
-namespace matrix_adaptor {
+namespace matrix_adapter {
 
 template<>
 inline
@@ -59,9 +59,9 @@ size_t n_columns(const matrix_t& matrix)
     return matrix.n_cols;
 }
 
-} // matrix_adaptor
+} // matrix_adapter
 
-namespace vector_adaptor {
+namespace vector_adapter {
 
 template<>
 inline
@@ -70,7 +70,7 @@ size_t n_elements(const vector_t& vector)
     return vector.n_elem;
 }
 
-} // vector_adaptor
+} // vector_adapter
 } // densitas
 
 

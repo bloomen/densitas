@@ -3,7 +3,7 @@
 
 
 namespace densitas {
-namespace vector_adaptor {
+namespace vector_adapter {
 
 
 template<typename VectorType>
@@ -36,5 +36,5 @@ void set_element(VectorType& vector, size_t index, ElementType value)
 }
 
 
-} // vector_adaptor
+} // vector_adapter
 } // densitas

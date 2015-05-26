@@ -18,9 +18,9 @@ manipulation_assign_vector_to_row.cpp \
 manipulation_extract_row.cpp \
 math_minimum.cpp \
 manipulation_predict_proba_for_row.cpp \
-vector_adaptor.cpp \
-matrix_adaptor.cpp \
-model_adaptor.cpp \
+vector_adapter.cpp \
+matrix_adapter.cpp \
+model_adapter.cpp \
 version.cpp \
 real_world_with_liblinear.cpp
 

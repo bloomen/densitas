@@ -32,35 +32,35 @@ public:
 };
 
 
-COLLECTION(vector_adaptor) {
+COLLECTION(vector_adapter) {
 
 TEST(test_construct_uninitialized) {
     const auto size = 3u;
-    const auto vector = densitas::vector_adaptor::construct_uninitialized<mock_vector>(size);
+    const auto vector = densitas::vector_adapter::construct_uninitialized<mock_vector>(size);
     assert_equal(size, vector.size_, SPOT);
 }
 
 TEST(test_n_elements) {
     const auto size = 3u;
-    const auto vector = densitas::vector_adaptor::construct_uninitialized<mock_vector>(size);
-    const auto n_elem = densitas::vector_adaptor::n_elements(vector);
+    const auto vector = densitas::vector_adapter::construct_uninitialized<mock_vector>(size);
+    const auto n_elem = densitas::vector_adapter::n_elements(vector);
     assert_equal(size, n_elem, SPOT);
 }
 
 TEST(test_get_element) {
     const auto size = 3u;
-    auto vector = densitas::vector_adaptor::construct_uninitialized<mock_vector>(size);
+    auto vector = densitas::vector_adapter::construct_uninitialized<mock_vector>(size);
     vector.value_ = 14.3;
-    const auto element = densitas::vector_adaptor::get_element<double>(vector, 2);
+    const auto element = densitas::vector_adapter::get_element<double>(vector, 2);
     assert_equal(vector.value_, element, SPOT);
 }
 
 TEST(test_set_element) {
     const auto size = 3u;
-    auto vector = densitas::vector_adaptor::construct_uninitialized<mock_vector>(size);
+    auto vector = densitas::vector_adapter::construct_uninitialized<mock_vector>(size);
     const auto index = 2u;
     const auto value = 14.3;
-    densitas::vector_adaptor::set_element<double>(vector, index, value);
+    densitas::vector_adapter::set_element<double>(vector, index, value);
     assert_equal(value, vector.value_, SPOT);
     assert_equal(index, vector.index_used_, SPOT);
 }

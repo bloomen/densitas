@@ -96,7 +96,7 @@ struct classifier {
          double estimates[2];
          for (size_t i=0; i<probas.n_elem; ++i) {
              const auto value = predict_probability(model_.get(), problem->x[i], estimates);
-             probas(i) = value==densitas::model_adaptor::yes<classifier>() ? std::max(estimates[0], estimates[1]) : std::min(estimates[0], estimates[1]);
+             probas(i) = value==densitas::model_adapter::yes<classifier>() ? std::max(estimates[0], estimates[1]) : std::min(estimates[0], estimates[1]);
          }
          return probas;
     }

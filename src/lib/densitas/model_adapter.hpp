@@ -2,7 +2,7 @@
 
 
 namespace densitas {
-namespace model_adaptor {
+namespace model_adapter {
 
 
 template<typename ModelType, typename MatrixType, typename VectorType>
@@ -33,5 +33,5 @@ constexpr int no()
 }
 
 
-} // model_adaptor
+} // model_adapter
 } // densitas

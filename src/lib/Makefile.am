@@ -12,9 +12,9 @@ densitas/all.hpp \
 densitas/density_estimator.hpp \
 densitas/densitas_error.hpp \
 densitas/math.hpp \
-densitas/model_adaptor.hpp \
-densitas/matrix_adaptor.hpp \
-densitas/vector_adaptor.hpp \
+densitas/model_adapter.hpp \
+densitas/matrix_adapter.hpp \
+densitas/vector_adapter.hpp \
 densitas/type_check.hpp \
 densitas/manipulation.hpp \
 densitas/version.hpp
