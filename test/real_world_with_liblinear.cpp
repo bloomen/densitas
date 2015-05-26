@@ -41,7 +41,7 @@ struct problem_deleter {
             }
             if (problem->x) {
                 if (!is_training_)
-                    delete[] problem->x[0];
+                	delete[] problem->x[0];
                 delete[] problem->x;
             }
             delete problem;
@@ -132,8 +132,9 @@ private:
         const auto n_cols = X.n_cols;
         auto prob = std::unique_ptr<problem, problem_deleter>(new problem, problem_deleter(is_training));
         prob->l = static_cast<int>(n_rows);
+        prob->n = static_cast<int>(n_cols);
         if (is_training) {
-            prob->y = new int[n_rows];
+            prob->y = new double[n_rows];
             std::copy(y.begin(), y.end(), prob->y);
         } else {
             prob->y = nullptr;
@@ -166,8 +167,8 @@ matrix_t get_X()
     auto X = matrix_t();
     X.load(dataset(), arma::csv_ascii);
     X.shed_col(10);
-    assert_equal(10, X.n_cols);
-    assert_equal(442, X.n_rows);
+    assert_equal(10, X.n_cols, SPOT);
+    assert_equal(442, X.n_rows, SPOT);
     return std::move(X);
 }
 
@@ -175,7 +176,7 @@ vector_t get_y()
 {
     auto X = matrix_t();
     X.load(dataset(), arma::csv_ascii);
-    assert_equal(442, X.n_rows);
+    assert_equal(442, X.n_rows, SPOT);
     return vector_t{X.col(10)};
 }
 
