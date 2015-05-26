@@ -6,6 +6,7 @@
 #include "vector_adapter.hpp"
 #include "manipulation.hpp"
 #include <vector>
+#include <future>
 
 
 namespace densitas {
@@ -75,17 +76,23 @@ public:
      * Trains the density estimator
      * @param X A matrix of shape (n_events, n_features)
      * @param y A vector of shape (n_events)
+     * @param async Whether to train each model asynchronously
      */
-    void train(const MatrixType& X, const VectorType& y)
+    void train(const MatrixType& X, const VectorType& y, bool async=false)
     {
         const auto quantiles = densitas::math::linspace<VectorType, ElementType>(0, 1, models_.size() + 1);
         trained_quantiles_ = densitas::math::quantiles<ElementType>(y, quantiles);
-        for (size_t i=0; i<models_.size(); ++i) {
-            const auto lower = densitas::vector_adapter::get_element<ElementType>(trained_quantiles_, i);
-            const auto upper = densitas::vector_adapter::get_element<ElementType>(trained_quantiles_, i+1);
-            auto features = MatrixType(X);
-            auto target = densitas::math::make_classification_target<ModelType>(y, lower, upper);
-            densitas::model_adapter::train(models_[i], features, target);
+        if (async) {
+			std::vector<std::future<void>> futures(models_.size());
+			for (size_t i=0; i<models_.size(); ++i) {
+				futures[i] = std::async(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(y), std::ref(trained_quantiles_));
+			}
+			for (auto& future : futures)
+				future.get();
+        } else {
+			for (size_t i=0; i<models_.size(); ++i) {
+				density_estimator::train_model(models_[i], i, X, y, trained_quantiles_);
+			}
         }
     }
 
@@ -156,10 +163,20 @@ public:
 
 protected:
 
+    ModelType ref_model_;
     std::vector<ModelType> models_;
     VectorType trained_quantiles_;
     VectorType predicted_quantiles_;
     ElementType accuracy_predicted_quantiles_;
+
+    static void train_model(ModelType& model, size_t model_index, MatrixType features, const VectorType& y, const VectorType& trained_quantiles)
+    {
+        const auto lower = densitas::vector_adapter::get_element<ElementType>(trained_quantiles, model_index);
+        const auto upper = densitas::vector_adapter::get_element<ElementType>(trained_quantiles, model_index + 1);
+		auto target = densitas::math::make_classification_target<ModelType>(y, lower, upper);
+		densitas::model_adapter::train(model, features, target);
+    }
+
 };
 
 
