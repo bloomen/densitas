@@ -51,6 +51,46 @@ public:
         densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 0, 0.5);
     }
 
+    density_estimator(const density_estimator& other)
+		: models_(other.models_),
+		  trained_quantiles_(other.trained_quantiles_),
+		  predicted_quantiles_(other.predicted_quantiles_),
+		  accuracy_predicted_quantiles_(other.accuracy_predicted_quantiles_)
+    {
+        densitas::core::check_element_type<ElementType>();
+    }
+
+    density_estimator(density_estimator&& other)
+		: models_(std::move(other.models_)),
+		  trained_quantiles_(std::move(other.trained_quantiles_)),
+		  predicted_quantiles_(std::move(other.predicted_quantiles_)),
+		  accuracy_predicted_quantiles_(std::move(other.accuracy_predicted_quantiles_))
+    {
+        densitas::core::check_element_type<ElementType>();
+    }
+
+    density_estimator& operator=(const density_estimator& other)
+    {
+    	if (this != &other) {
+			models_ = other.models_;
+			trained_quantiles_ = other.trained_quantiles_;
+			predicted_quantiles_ = other.predicted_quantiles_;
+			accuracy_predicted_quantiles_ = other.accuracy_predicted_quantiles_;
+    	}
+    	return *this;
+    }
+
+    density_estimator& operator=(density_estimator&& other)
+    {
+    	if (this != &other) {
+			models_ = std::move(other.models_);
+			trained_quantiles_ = std::move(other.trained_quantiles_);
+			predicted_quantiles_ = std::move(other.predicted_quantiles_);
+			accuracy_predicted_quantiles_ = std::move(other.accuracy_predicted_quantiles_);
+    	}
+    	return *this;
+    }
+
     virtual ~density_estimator() = default;
 
     /**
