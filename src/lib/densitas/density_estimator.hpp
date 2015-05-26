@@ -121,15 +121,6 @@ public:
         densitas::core::check_element_type<ElementType>();
     }
 
-    density_estimator(density_estimator&& other)
-		: models_(std::move(other.models_)),
-		  trained_quantiles_(std::move(other.trained_quantiles_)),
-		  predicted_quantiles_(std::move(other.predicted_quantiles_)),
-		  accuracy_predicted_quantiles_(std::move(other.accuracy_predicted_quantiles_))
-    {
-        densitas::core::check_element_type<ElementType>();
-    }
-
     density_estimator& operator=(const density_estimator& other)
     {
     	if (this != &other) {
@@ -139,6 +130,15 @@ public:
 			accuracy_predicted_quantiles_ = other.accuracy_predicted_quantiles_;
     	}
     	return *this;
+    }
+
+    density_estimator(density_estimator&& other)
+		: models_(std::move(other.models_)),
+		  trained_quantiles_(std::move(other.trained_quantiles_)),
+		  predicted_quantiles_(std::move(other.predicted_quantiles_)),
+		  accuracy_predicted_quantiles_(std::move(other.accuracy_predicted_quantiles_))
+    {
+        densitas::core::check_element_type<ElementType>();
     }
 
     density_estimator& operator=(density_estimator&& other)
