@@ -120,30 +120,10 @@ public:
         return prediction;
     }
 
-    density_estimator(const density_estimator& other)
-        : models_(),
-          trained_quantiles_(other.trained_quantiles_),
-          predicted_quantiles_(other.predicted_quantiles_),
-          accuracy_predicted_quantiles_(other.accuracy_predicted_quantiles_)
-    {
-        densitas::core::check_element_type<ElementType>();
-        models_ = other.models_;
-    }
-
-    density_estimator& operator=(const density_estimator& other)
-    {
-        if (this != &other) {
-            models_ = other.models_;
-            trained_quantiles_ = other.trained_quantiles_;
-            predicted_quantiles_ = other.predicted_quantiles_;
-            accuracy_predicted_quantiles_ = other.accuracy_predicted_quantiles_;
-        }
-        return *this;
-    }
-
-    density_estimator(density_estimator&& other) = delete;
-
-    density_estimator& operator=(density_estimator&& other) = delete;
+    density_estimator(const density_estimator&) = delete;
+    density_estimator& operator=(const density_estimator&) = delete;
+    density_estimator(density_estimator&&) = delete;
+    density_estimator& operator=(density_estimator&&) = delete;
 
     virtual ~density_estimator() = default;
 

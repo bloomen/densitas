@@ -41,7 +41,7 @@ struct problem_deleter {
             }
             if (problem->x) {
                 if (!is_training_)
-                	delete[] problem->x[0];
+                    delete[] problem->x[0];
                 delete[] problem->x;
             }
             delete problem;
@@ -67,7 +67,7 @@ struct classifier {
     // it just needs to re-initialize
     classifier& operator=(const classifier& other)
     {
-        if (&other != this) {
+        if (this != &other) {
             model_.reset();
             free_param_weights();
             init_params();
@@ -91,14 +91,14 @@ struct classifier {
 
     vector_t predict_proba(matrix_t& X)
     {
-         auto problem = make_problem(X, vector_t{}, false);
-         auto probas = vector_t(problem->l);
-         double estimates[2];
-         for (size_t i=0; i<probas.n_elem; ++i) {
-             const auto value = predict_probability(model_.get(), problem->x[i], estimates);
-             probas(i) = value==densitas::model_adapter::yes<classifier>() ? std::max(estimates[0], estimates[1]) : std::min(estimates[0], estimates[1]);
-         }
-         return probas;
+        auto problem = make_problem(X, vector_t{}, false);
+        auto probas = vector_t(problem->l);
+        double estimates[2];
+        for (size_t i=0; i<probas.n_elem; ++i) {
+            const auto value = predict_probability(model_.get(), problem->x[i], estimates);
+            probas(i) = value==densitas::model_adapter::yes<classifier>() ? std::max(estimates[0], estimates[1]) : std::min(estimates[0], estimates[1]);
+        }
+        return probas;
     }
 
 private:
@@ -119,10 +119,10 @@ private:
     void free_param_weights()
     {
         if (params_.weight) {
-           delete[] params_.weight;
+            delete[] params_.weight;
         }
         if (params_.weight_label) {
-           delete[] params_.weight_label;
+            delete[] params_.weight_label;
         }
     }
 
