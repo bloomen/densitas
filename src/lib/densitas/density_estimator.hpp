@@ -83,16 +83,17 @@ public:
         const auto quantiles = densitas::math::linspace<VectorType, ElementType>(0, 1, models_.size() + 1);
         trained_quantiles_ = densitas::math::quantiles<ElementType>(y, quantiles);
         if (async) {
-			std::vector<std::future<void>> futures(models_.size());
-			for (size_t i=0; i<models_.size(); ++i) {
-				futures[i] = std::async(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(y), std::ref(trained_quantiles_));
-			}
-			for (auto& future : futures)
-				future.get();
+            std::vector<std::future<void>> futures(models_.size());
+            for (size_t i=0; i<models_.size(); ++i) {
+                futures[i] = std::async(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(y), std::ref(trained_quantiles_));
+            }
+            for (auto& future : futures) {
+                future.get();
+            }
         } else {
-			for (size_t i=0; i<models_.size(); ++i) {
-				density_estimator::train_model(models_[i], i, X, y, trained_quantiles_);
-			}
+            for (size_t i=0; i<models_.size(); ++i) {
+                density_estimator::train_model(models_[i], i, X, y, trained_quantiles_);
+            }
         }
     }
 
@@ -120,50 +121,34 @@ public:
     }
 
     density_estimator(const density_estimator& other)
-		: models_(other.models_),
-		  trained_quantiles_(other.trained_quantiles_),
-		  predicted_quantiles_(other.predicted_quantiles_),
-		  accuracy_predicted_quantiles_(other.accuracy_predicted_quantiles_)
+        : models_(),
+          trained_quantiles_(other.trained_quantiles_),
+          predicted_quantiles_(other.predicted_quantiles_),
+          accuracy_predicted_quantiles_(other.accuracy_predicted_quantiles_)
     {
         densitas::core::check_element_type<ElementType>();
+        models_ = other.models_;
     }
 
     density_estimator& operator=(const density_estimator& other)
     {
-    	if (this != &other) {
-			models_ = other.models_;
-			trained_quantiles_ = other.trained_quantiles_;
-			predicted_quantiles_ = other.predicted_quantiles_;
-			accuracy_predicted_quantiles_ = other.accuracy_predicted_quantiles_;
-    	}
-    	return *this;
+        if (this != &other) {
+            models_ = other.models_;
+            trained_quantiles_ = other.trained_quantiles_;
+            predicted_quantiles_ = other.predicted_quantiles_;
+            accuracy_predicted_quantiles_ = other.accuracy_predicted_quantiles_;
+        }
+        return *this;
     }
 
-    density_estimator(density_estimator&& other)
-		: models_(std::move(other.models_)),
-		  trained_quantiles_(std::move(other.trained_quantiles_)),
-		  predicted_quantiles_(std::move(other.predicted_quantiles_)),
-		  accuracy_predicted_quantiles_(std::move(other.accuracy_predicted_quantiles_))
-    {
-        densitas::core::check_element_type<ElementType>();
-    }
+    density_estimator(density_estimator&& other) = delete;
 
-    density_estimator& operator=(density_estimator&& other)
-    {
-    	if (this != &other) {
-			models_ = std::move(other.models_);
-			trained_quantiles_ = std::move(other.trained_quantiles_);
-			predicted_quantiles_ = std::move(other.predicted_quantiles_);
-			accuracy_predicted_quantiles_ = std::move(other.accuracy_predicted_quantiles_);
-    	}
-    	return *this;
-    }
+    density_estimator& operator=(density_estimator&& other) = delete;
 
     virtual ~density_estimator() = default;
 
 protected:
 
-    ModelType ref_model_;
     std::vector<ModelType> models_;
     VectorType trained_quantiles_;
     VectorType predicted_quantiles_;
@@ -173,8 +158,8 @@ protected:
     {
         const auto lower = densitas::vector_adapter::get_element<ElementType>(trained_quantiles, model_index);
         const auto upper = densitas::vector_adapter::get_element<ElementType>(trained_quantiles, model_index + 1);
-		auto target = densitas::math::make_classification_target<ModelType>(y, lower, upper);
-		densitas::model_adapter::train(model, features, target);
+        auto target = densitas::math::make_classification_target<ModelType>(y, lower, upper);
+        densitas::model_adapter::train(model, features, target);
     }
 
 };

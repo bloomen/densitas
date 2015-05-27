@@ -113,7 +113,7 @@ TEST(test_accuracy_predicted_quantiles_setter) {
     assert_equal(accuracy, estimator.get_accuracy_predicted_quantiles(), SPOT);
 }
 
-extended_estimator make_estimator_copy_move()
+extended_estimator make_estimator_copy()
 {
     auto model = mock_model();
     auto estimator = extended_estimator(model, 2);
@@ -122,7 +122,7 @@ extended_estimator make_estimator_copy_move()
     return estimator;
 }
 
-void assert_copied_moved_estimator(const extended_estimator& estimator)
+void assert_copied_estimator(const extended_estimator& estimator)
 {
     assert_equal_containers(vector_t{}, estimator.get_trained_quantiles(), SPOT);
     assert_equal_containers(vector_t{0.5}, estimator.get_predicted_quantiles(), SPOT);
@@ -131,31 +131,17 @@ void assert_copied_moved_estimator(const extended_estimator& estimator)
 }
 
 TEST(test_copy_constructor) {
-	auto estimator = make_estimator_copy_move();
+	auto estimator = make_estimator_copy();
     const extended_estimator copied_estimator(estimator);
-    assert_copied_moved_estimator(copied_estimator);
+    assert_copied_estimator(copied_estimator);
 }
 
 TEST(test_copy_assignment) {
-	auto estimator = make_estimator_copy_move();
+	auto estimator = make_estimator_copy();
     auto model = mock_model();
     extended_estimator copied_estimator(model, 4);
     copied_estimator = estimator;
-    assert_copied_moved_estimator(copied_estimator);
-}
-
-TEST(test_move_constructor) {
-	auto estimator = make_estimator_copy_move();
-    const extended_estimator moved_estimator(std::move(estimator));
-    assert_copied_moved_estimator(moved_estimator);
-}
-
-TEST(test_move_assignment) {
-	auto estimator = make_estimator_copy_move();
-    auto model = mock_model();
-	extended_estimator moved_estimator(model, 4);
-    moved_estimator = std::move(estimator);
-    assert_copied_moved_estimator(moved_estimator);
+    assert_copied_estimator(copied_estimator);
 }
 
 }
