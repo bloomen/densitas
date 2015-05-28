@@ -20,7 +20,6 @@ TEST(test_predict_proba) {
     X.row(0) = vector_t{-1, -2}.t();
     const auto prediction = densitas::model_adapter::predict_proba<vector_t>(model, X);
     assert_equal_containers(model.prediction, prediction, SPOT);
-    assert_equal_containers(X, model.predict_X[0], SPOT);
 }
 
 TEST(test_yes) {

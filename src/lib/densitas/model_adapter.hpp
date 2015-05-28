@@ -13,7 +13,7 @@ void train(ModelType& model, MatrixType& X, VectorType& y)
 
 
 template<typename VectorType, typename ModelType, typename MatrixType>
-VectorType predict_proba(ModelType& model, MatrixType& X)
+VectorType predict_proba(const ModelType& model, MatrixType& X)
 {
     return model.predict_proba(X);
 }

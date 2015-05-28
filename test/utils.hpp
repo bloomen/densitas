@@ -15,10 +15,9 @@ struct mock_model {
     vector_t prediction;
     vector_t train_y;
     matrix_t train_X;
-    std::vector<matrix_t> predict_X;
 
     mock_model()
-        : prediction(), train_y(), train_X(), predict_X()
+        : prediction(), train_y(), train_X()
     {}
 
     void train(matrix_t& X, vector_t& y)
@@ -27,10 +26,8 @@ struct mock_model {
         train_X = X;
     }
 
-    vector_t predict_proba(matrix_t& X)
+    vector_t predict_proba(matrix_t&) const
     {
-        predict_X.push_back(X);
-        prediction.resize(X.n_rows);
         return prediction;
     }
 

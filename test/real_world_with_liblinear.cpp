@@ -60,8 +60,13 @@ struct classifier {
         init_params();
     }
 
-    classifier(const classifier&) = delete;
-    classifier(classifier&&) = delete;
+    // doesn't have to actually copy to work with density_estimator,
+    // it just needs to initialize
+    classifier(const classifier&)
+        : model_(), params_()
+    {
+        init_params();
+    }
 
     // doesn't have to actually copy to work with density_estimator,
     // it just needs to re-initialize
@@ -75,6 +80,7 @@ struct classifier {
         return *this;
     }
 
+    classifier(classifier&&) = delete;
     classifier& operator=(classifier&&) = delete;
 
     ~classifier()
@@ -89,7 +95,7 @@ struct classifier {
         model_ = std::unique_ptr<model, model_deleter>(liblinear_train(problem.get(), &params_), model_deleter());
     }
 
-    vector_t predict_proba(matrix_t& X)
+    vector_t predict_proba(matrix_t& X) const
     {
         auto problem = make_problem(X, vector_t{}, false);
         auto probas = vector_t(problem->l);
@@ -126,7 +132,7 @@ private:
         }
     }
 
-    std::unique_ptr<problem, problem_deleter> make_problem(const matrix_t& X, const vector_t& y, bool is_training)
+    std::unique_ptr<problem, problem_deleter> make_problem(const matrix_t& X, const vector_t& y, bool is_training) const
     {
         const auto n_rows = X.n_rows;
         const auto n_cols = X.n_cols;
@@ -207,11 +213,11 @@ TEST(test_density_estimator_predict_more_quantiles) {
 
     const size_t n_models = 9;
     estimator_t estimator(model, n_models);
-    estimator.train(X, y);
+    estimator.train(X, y, true);
 
     const auto quantiles = vector_t{0.05, 0.5, 0.95};
     estimator.predicted_quantiles(quantiles);
-    const matrix_t prediction = estimator.predict(X);
+    const matrix_t prediction = estimator.predict(X, true);
     assert_equal(y.n_elem, prediction.n_rows, SPOT);
     assert_equal(quantiles.n_elem, prediction.n_cols, SPOT);
 }

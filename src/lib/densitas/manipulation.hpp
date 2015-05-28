@@ -44,7 +44,7 @@ VectorType extract_row(const MatrixType& matrix, size_t row_index)
 
 
 template<typename ElementType, typename VectorType, typename MatrixType, typename ModelType>
-ElementType predict_proba_for_row(ModelType& model, const MatrixType& X, size_t row_index)
+ElementType predict_proba_for_row(const ModelType& model, const MatrixType& X, size_t row_index)
 {
     const auto n_cols = densitas::matrix_adapter::n_columns(X);
     const auto feature_row = densitas::core::extract_row<ElementType, VectorType>(X, row_index);

@@ -80,18 +80,13 @@ TEST(test_train_async) {
     make_test_train(true);
 }
 
-TEST(test_predict) {
+void make_test_predict(bool async)
+{
     auto estimator = train_estimator();
     estimator->predicted_quantiles(vector_t{0.5, 0.9});
     const auto X = get_X();
-    const auto y_resp = estimator->predict(X);
+    const auto y_resp = estimator->predict(X, async);
     const auto models = estimator->get_models();
-    assert_equal(X.n_rows, models[0].predict_X.size(), SPOT);
-    assert_equal(X.n_rows, models[1].predict_X.size(), SPOT);
-    for (size_t i=0; i<X.n_rows; ++i) {
-        assert_equal_containers(vector_t(X.row(i).t()), vector_t(models[0].predict_X[i].row(0).t()), SPOT);
-        assert_equal_containers(vector_t(X.row(i).t()), vector_t(models[1].predict_X[i].row(0).t()), SPOT);
-    }
     assert_equal(X.n_rows, y_resp.n_rows, SPOT);
     assert_equal(2u, y_resp.n_cols, SPOT);
     auto y_exp = matrix_t(X.n_rows, 2u);
@@ -99,6 +94,14 @@ TEST(test_predict) {
         y_exp.row(i) = vector_t{5.75, 7.35}.t();
     }
     assert_equal_containers(y_exp, y_resp, SPOT);
+}
+
+TEST(test_predict) {
+    make_test_predict(false);
+}
+
+TEST(test_predict_async) {
+    make_test_predict(true);
 }
 
 TEST(test_number_of_models_too_small) {
