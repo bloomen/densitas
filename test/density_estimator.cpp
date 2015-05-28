@@ -125,4 +125,12 @@ TEST(test_accuracy_predicted_quantiles_setter) {
     assert_equal(accuracy, estimator.get_accuracy_predicted_quantiles(), SPOT);
 }
 
+TEST(test_clone) {
+    auto model = mock_model();
+    estimator_t estimator;
+    estimator.set_models(model, 2);
+    std::unique_ptr<estimator_t> cloned = estimator.clone();
+    assert_true(cloned, SPOT);
+}
+
 }
