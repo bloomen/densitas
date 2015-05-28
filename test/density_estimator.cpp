@@ -16,9 +16,9 @@ struct extended_estimator : estimator_t {
         return models_;
     }
 
-    vector_t get_trained_quantiles() const
+    vector_t get_trained_centers() const
     {
-        return trained_quantiles_;
+        return trained_centers_;
     }
 
     vector_t get_predicted_quantiles() const
@@ -58,9 +58,9 @@ std::unique_ptr<extended_estimator> train_estimator(bool async=false)
 void make_test_train(bool async)
 {
     auto estimator = train_estimator(async);
-    const auto quantiles = estimator->get_trained_quantiles();
-    const auto exp_quantiles = vector_t{5, 6.5, 9};
-    assert_equal_containers(exp_quantiles, quantiles, SPOT);
+    const auto centers = estimator->get_trained_centers();
+    const auto exp_centers = vector_t{5.75, 7.75};
+    assert_equal_containers(exp_centers, centers, SPOT);
     const auto models = estimator->get_models();
     assert_equal(2u, models.size());
     const auto X = get_X();

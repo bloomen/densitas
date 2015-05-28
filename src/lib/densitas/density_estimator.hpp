@@ -39,7 +39,7 @@ public:
      */
     density_estimator()
         : models_(),
-          trained_quantiles_(densitas::vector_adapter::construct_uninitialized<VectorType>(0)),
+          trained_centers_(densitas::vector_adapter::construct_uninitialized<VectorType>(0)),
           predicted_quantiles_(densitas::vector_adapter::construct_uninitialized<VectorType>(1)),
           accuracy_predicted_quantiles_(1e-2)
     {
@@ -65,7 +65,7 @@ public:
     {
         auto estimator = std::unique_ptr<density_estimator>(new density_estimator);
         estimator->models_ = models_;
-        estimator->trained_quantiles_ = trained_quantiles_;
+        estimator->trained_centers_ = trained_centers_;
         estimator->predicted_quantiles_ = predicted_quantiles_;
         estimator->accuracy_predicted_quantiles_ = accuracy_predicted_quantiles_;
         return std::move(estimator);
@@ -114,16 +114,17 @@ public:
     {
         check_n_models(models_.size());
         const auto quantiles = densitas::math::linspace<VectorType, ElementType>(0, 1, models_.size() + 1);
-        trained_quantiles_ = densitas::math::quantiles<ElementType>(y, quantiles);
+        const auto trained_quantiles = densitas::math::quantiles<ElementType>(y, quantiles);
+        trained_centers_ = densitas::math::centers<ElementType>(trained_quantiles);
         if (async) {
             std::vector<std::future<void>> futures(models_.size());
             for (size_t i=0; i<models_.size(); ++i) {
-                futures[i] = std::async(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(y), std::ref(trained_quantiles_));
+                futures[i] = std::async(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(y), std::ref(trained_quantiles));
             }
             for (auto& future : futures) future.get();
         } else {
             for (size_t i=0; i<models_.size(); ++i) {
-                density_estimator::train_model(models_[i], i, X, y, trained_quantiles_);
+                density_estimator::train_model(models_[i], i, X, y, trained_quantiles);
             }
         }
     }
@@ -137,19 +138,18 @@ public:
     MatrixType predict(const MatrixType& X, bool async=false) const
     {
         check_n_models(models_.size());
-        const auto centers = densitas::math::centers<ElementType>(trained_quantiles_);
         const auto n_rows = densitas::matrix_adapter::n_rows(X);
         const auto n_quantiles = densitas::vector_adapter::n_elements(predicted_quantiles_);
         auto prediction = densitas::matrix_adapter::construct_uninitialized<MatrixType>(n_rows, n_quantiles);
         if (async) {
             std::vector<std::future<void>> futures(n_rows);
             for (size_t i=0; i<n_rows; ++i) {
-                futures[i] = std::async(density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(X), std::ref(centers), std::ref(predicted_quantiles_), accuracy_predicted_quantiles_);
+                futures[i] = std::async(density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(X), std::ref(trained_centers_), std::ref(predicted_quantiles_), accuracy_predicted_quantiles_);
             }
             for (auto& future : futures) future.get();
         } else {
             for (size_t i=0; i<n_rows; ++i) {
-                density_estimator::predict_event(prediction, models_, i, X, centers, predicted_quantiles_, accuracy_predicted_quantiles_);
+                density_estimator::predict_event(prediction, models_, i, X, trained_centers_, predicted_quantiles_, accuracy_predicted_quantiles_);
             }
         }
         return prediction;
@@ -165,7 +165,7 @@ public:
 protected:
 
     std::vector<ModelType> models_;
-    VectorType trained_quantiles_;
+    VectorType trained_centers_;
     VectorType predicted_quantiles_;
     ElementType accuracy_predicted_quantiles_;
 
