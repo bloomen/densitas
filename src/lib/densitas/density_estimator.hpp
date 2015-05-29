@@ -49,7 +49,7 @@ public:
 
     /**
      * Constructor
-     * @param model A binary classifier
+     * @param model A binary classifier. Must implement copy semantics
      * @param n_models The number of models to use
      */
     density_estimator(const ModelType& model, size_t n_models)
@@ -73,7 +73,7 @@ public:
 
     /**
      * Set the internal models using a reference model object
-     * @param model A binary classifier
+     * @param model A binary classifier. Must implement copy semantics
      * @param n_models The number of models to use
      */
     void set_models(const ModelType& model, size_t n_models)
@@ -87,7 +87,7 @@ public:
     /**
      * Sets the predicted quantiles which must be values between
      *  zero and one. Default: {0.5}
-     * @param quantiles The predicted probabilties
+     * @param quantiles The predicted quantiles
      */
     void predicted_quantiles(const VectorType& quantiles)
     {
@@ -98,6 +98,7 @@ public:
      * Sets the computation accuracy of the predicted quantiles. Must be
      *  a value between zero and one. The closer to zero the better
      *  the accuracy but the higher the computation demand. Default: 1e-2
+     * @param accuracy The predicted quantile accuracy
      */
     void accuracy_predicted_quantiles(ElementType accuracy)
     {

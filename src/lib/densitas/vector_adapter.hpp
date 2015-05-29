@@ -5,21 +5,27 @@
 namespace densitas {
 namespace vector_adapter {
 
-
+/**
+ * Constructs a new, uninitialized vector
+ */
 template<typename VectorType>
 VectorType construct_uninitialized(size_t n_elem)
 {
     return VectorType(n_elem);
 }
 
-
+/**
+ * Returns the number of elements
+ */
 template<typename VectorType>
 size_t n_elements(const VectorType& vector)
 {
     return static_cast<size_t>(vector.size());
 }
 
-
+/**
+ * Returns the element at given index
+ */
 template<typename ElementType, typename VectorType>
 ElementType get_element(const VectorType& vector, size_t index)
 {
@@ -27,7 +33,9 @@ ElementType get_element(const VectorType& vector, size_t index)
     return static_cast<ElementType>(vector(index));
 }
 
-
+/**
+ * Sets the element at given index
+ */
 template<typename ElementType, typename VectorType>
 void set_element(VectorType& vector, size_t index, ElementType value)
 {
