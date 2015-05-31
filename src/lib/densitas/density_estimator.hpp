@@ -40,11 +40,13 @@ public:
     density_estimator()
         : models_(),
           trained_centers_(densitas::vector_adapter::construct_uninitialized<VectorType>(0)),
-          predicted_quantiles_(densitas::vector_adapter::construct_uninitialized<VectorType>(1)),
+          predicted_quantiles_(densitas::vector_adapter::construct_uninitialized<VectorType>(3)),
           accuracy_predicted_quantiles_(1e-2)
     {
         densitas::core::check_element_type<ElementType>();
-        densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 0, 0.5);
+        densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 0, 0.05);
+        densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 1, 0.5);
+        densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 2, 0.95);
     }
 
     /**
@@ -86,7 +88,7 @@ public:
 
     /**
      * Sets the predicted quantiles which must be values between
-     *  zero and one. Default: {0.5}
+     *  zero and one. Default: {0.05, 0.5, 0.95}
      * @param quantiles The predicted quantiles
      */
     void predicted_quantiles(const VectorType& quantiles)

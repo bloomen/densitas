@@ -195,12 +195,16 @@ TEST(test_density_estimator) {
     estimator_t estimator(model, n_models);
     estimator.train(X, y);
 
-    const vector_t prediction = estimator.predict(X).col(0);
+    const vector_t lower = estimator.predict(X).col(0);
+    const vector_t prediction = estimator.predict(X).col(1);
+    const vector_t upper = estimator.predict(X).col(2);
     assert_equal(y.n_elem, prediction.n_elem, SPOT);
 
     double error = 0;
     for (size_t i=0; i<y.n_elem; ++i) {
         error += std::abs(y(i) - prediction(i));
+        assert_lesser_equal(lower(i), prediction(i), SPOT);
+        assert_lesser_equal(prediction(i), upper(i), SPOT);
     }
     error /= y.n_elem;
     assert_lesser(error, 45., SPOT);
