@@ -5,9 +5,9 @@
 using namespace unittest::assertions;
 
 
-typedef arma::vec vector_t;
+using vector_t = arma::vec;
 
-typedef arma::mat matrix_t;
+using matrix_t = arma::mat;
 
 
 struct mock_model {
