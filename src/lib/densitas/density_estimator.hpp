@@ -189,7 +189,7 @@ protected:
         densitas::core::assign_vector_to_row<ElementType>(prediction, event_index, quants);
     }
 
-    virtual void check_n_models(size_t n_models) const
+    void check_n_models(size_t n_models) const
     {
         if (!(n_models > 1))
             throw densitas::densitas_error("number of models must be larger than one");
