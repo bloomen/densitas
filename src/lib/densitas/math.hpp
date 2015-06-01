@@ -137,17 +137,32 @@ VectorType linspace(ElementType start, ElementType end, size_t n)
 
 
 template<typename ElementType, typename VectorType>
-VectorType centers(const VectorType& vector)
+VectorType centers(const VectorType& data, const VectorType& quantiles)
 {
     densitas::core::check_element_type<ElementType>();
-    const auto n_elem = densitas::vector_adapter::n_elements(vector);
+    const auto n_data = densitas::vector_adapter::n_elements(data);
+    const auto n_elem = densitas::vector_adapter::n_elements(quantiles);
+    if (!(n_data > 0))
+        throw densitas::densitas_error("size of data is zero");
     if (!(n_elem > 1))
-        throw densitas::densitas_error("size of vector must be larger than one, not: " + std::to_string(n_elem));
+        throw densitas::densitas_error("size of quantiles must be larger than one, not: " + std::to_string(n_elem));
+    std::vector<size_t> counter(n_elem - 1, 0);
+    std::vector<ElementType> accumulator(n_elem - 1, 0.);
+    for (size_t i=0; i<n_data; ++i) {
+        const auto value = densitas::vector_adapter::get_element<ElementType>(data, i);
+        for (size_t j=0; j<n_elem-1; ++j) {
+            const auto first = densitas::vector_adapter::get_element<ElementType>(quantiles, j);
+            const auto second = densitas::vector_adapter::get_element<ElementType>(quantiles, j + 1);
+            if (value>=first && value<=second) {
+                accumulator[j] += value;
+                ++counter[j];
+            }
+        }
+    }
     auto centers = densitas::vector_adapter::construct_uninitialized<VectorType>(n_elem - 1);
-    for (size_t i=0; i<n_elem-1; ++i) {
-        const auto first = densitas::vector_adapter::get_element<ElementType>(vector, i);
-        const auto second = densitas::vector_adapter::get_element<ElementType>(vector, i+1);
-        densitas::vector_adapter::set_element<ElementType>(centers, i, (first + second) / 2);
+    for (size_t j=0; j<n_elem-1; ++j) {
+        if (counter[j]==0) counter[j] = 1;
+        densitas::vector_adapter::set_element<ElementType>(centers, j, accumulator[j] / counter[j]);
     }
     return centers;
 }

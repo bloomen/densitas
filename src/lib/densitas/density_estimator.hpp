@@ -118,7 +118,7 @@ public:
         check_n_models(models_.size());
         const auto quantiles = densitas::math::linspace<VectorType, ElementType>(0, 1, models_.size() + 1);
         const auto trained_quantiles = densitas::math::quantiles<ElementType>(y, quantiles);
-        trained_centers_ = densitas::math::centers<ElementType>(trained_quantiles);
+        trained_centers_ = densitas::math::centers<ElementType>(y, trained_quantiles);
         if (async) {
             std::vector<std::future<void>> futures(models_.size());
             for (size_t i=0; i<models_.size(); ++i) {

@@ -59,7 +59,7 @@ void make_test_train(bool async)
 {
     auto estimator = train_estimator(async);
     const auto centers = estimator->get_trained_centers();
-    const auto exp_centers = vector_t{5.75, 7.75};
+    const auto exp_centers = vector_t{5.5, 8};
     assert_equal_containers(exp_centers, centers, SPOT);
     const auto models = estimator->get_models();
     assert_equal(2u, models.size());
@@ -91,7 +91,7 @@ void make_test_predict(bool async)
     assert_equal(2u, y_resp.n_cols, SPOT);
     auto y_exp = matrix_t(X.n_rows, 2u);
     for (size_t i=0; i<X.n_rows; ++i) {
-        y_exp.row(i) = vector_t{5.75, 7.35}.t();
+        y_exp.row(i) = vector_t{5.5, 7.5}.t();
     }
     assert_equal_containers(y_exp, y_resp, SPOT);
 }
