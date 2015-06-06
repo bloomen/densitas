@@ -141,26 +141,30 @@ VectorType centers(const VectorType& data, const VectorType& quantiles)
 {
     densitas::core::check_element_type<ElementType>();
     const auto n_data = densitas::vector_adapter::n_elements(data);
-    const auto n_elem = densitas::vector_adapter::n_elements(quantiles);
     if (!(n_data > 0))
         throw densitas::densitas_error("size of data is zero");
-    if (!(n_elem > 1))
-        throw densitas::densitas_error("size of quantiles must be larger than one, not: " + std::to_string(n_elem));
-    std::vector<size_t> counter(n_elem - 1, 0);
-    std::vector<ElementType> accumulator(n_elem - 1, 0.);
+    const auto n_quant = densitas::vector_adapter::n_elements(quantiles);
+    if (!(n_quant > 1))
+        throw densitas::densitas_error("size of quantiles must be larger than one, not: " + std::to_string(n_quant));
+    const auto n_elem = n_quant - 1;
+    std::vector<size_t> counter(n_elem, 0);
+    std::vector<ElementType> accumulator(n_elem, 0.);
     for (size_t i=0; i<n_data; ++i) {
+        int current_j = -1;
         const auto value = densitas::vector_adapter::get_element<ElementType>(data, i);
-        for (size_t j=0; j<n_elem-1; ++j) {
+        for (size_t j=0; j<n_elem; ++j) {
             const auto first = densitas::vector_adapter::get_element<ElementType>(quantiles, j);
             const auto second = densitas::vector_adapter::get_element<ElementType>(quantiles, j + 1);
             if (value>=first && value<=second) {
                 accumulator[j] += value;
                 ++counter[j];
+                current_j = j;
             }
+            if (current_j>0 && current_j!=j) break;
         }
     }
-    auto centers = densitas::vector_adapter::construct_uninitialized<VectorType>(n_elem - 1);
-    for (size_t j=0; j<n_elem-1; ++j) {
+    auto centers = densitas::vector_adapter::construct_uninitialized<VectorType>(n_elem);
+    for (size_t j=0; j<n_elem; ++j) {
         if (counter[j]==0) counter[j] = 1;
         densitas::vector_adapter::set_element<ElementType>(centers, j, accumulator[j] / counter[j]);
     }
