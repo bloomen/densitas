@@ -16,7 +16,7 @@ void train(ModelType& model, MatrixType& X, VectorType& y)
 
 /**
  * Predicts events using a trained model for given features X. Should
- * return a probability value between 0 and 1
+ * return probability values between 0 and 1
  */
 template<typename VectorType, typename ModelType, typename MatrixType>
 VectorType predict_proba(const ModelType& model, MatrixType& X)
