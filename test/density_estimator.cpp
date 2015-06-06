@@ -51,7 +51,8 @@ std::unique_ptr<extended_estimator> train_estimator(bool async=false)
     auto estimator = std::unique_ptr<extended_estimator>(new extended_estimator(model, 2));
     const auto X = get_X();
     const auto y = vector_t{5, 6, 7, 8, 9};
-    estimator->train(X, y, async);
+    const auto threads = async ? 3 : 1;
+    estimator->train(X, y, threads);
     return estimator;
 }
 
@@ -85,7 +86,8 @@ void make_test_predict(bool async)
     auto estimator = train_estimator();
     estimator->predicted_quantiles(vector_t{0.5, 0.9});
     const auto X = get_X();
-    const auto y_resp = estimator->predict(X, async);
+    const auto threads = async ? 3 : 1;
+    const auto y_resp = estimator->predict(X, threads);
     const auto models = estimator->get_models();
     assert_equal(X.n_rows, y_resp.n_rows, SPOT);
     assert_equal(2u, y_resp.n_cols, SPOT);

@@ -8,6 +8,7 @@
 #include <vector>
 #include <future>
 #include <memory>
+#include <chrono>
 
 
 namespace densitas {
@@ -111,18 +112,21 @@ public:
      * Trains the density estimator
      * @param X A matrix of shape (n_events, n_features)
      * @param y A vector of shape (n_events)
-     * @param async Whether to train each model asynchronously
+     * @param threads Max number of threads to launch for each model training
      */
-    void train(const MatrixType& X, const VectorType& y, bool async=false)
+    void train(const MatrixType& X, const VectorType& y, int threads=1)
     {
         check_n_models(models_.size());
         const auto quantiles = densitas::math::linspace<VectorType, ElementType>(0, 1, models_.size() + 1);
         const auto trained_quantiles = densitas::math::quantiles<ElementType>(y, quantiles);
         trained_centers_ = densitas::math::centers<ElementType>(y, trained_quantiles);
-        if (async) {
-            std::vector<std::future<void>> futures(models_.size());
+        if (threads > 1) {
+            std::vector<std::future<void>> futures;
+            int running = 0;
             for (size_t i=0; i<models_.size(); ++i) {
-                futures[i] = std::async(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(y), std::ref(trained_quantiles));
+                futures.push_back(std::async(std::launch::async, density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(y), std::ref(trained_quantiles)));
+                ++running;
+                wait_for_futures(futures, running, threads);
             }
             for (auto& future : futures) future.get();
         } else {
@@ -135,19 +139,22 @@ public:
     /**
      * Predicts events using this trained density estimator
      * @param X A matrix of shape (n_events, n_features)
-     * @param async Whether to predict each event asynchronously
+     * @param threads Max number of threads to launch for each prediction event
      * @return A matrix of shape (n_events, n_predicted_quantiles)
      */
-    MatrixType predict(const MatrixType& X, bool async=false) const
+    MatrixType predict(const MatrixType& X, int threads=1) const
     {
         check_n_models(models_.size());
         const auto n_rows = densitas::matrix_adapter::n_rows(X);
         const auto n_quantiles = densitas::vector_adapter::n_elements(predicted_quantiles_);
         auto prediction = densitas::matrix_adapter::construct_uninitialized<MatrixType>(n_rows, n_quantiles);
-        if (async) {
-            std::vector<std::future<void>> futures(n_rows);
+        if (threads > 1) {
+            std::vector<std::future<void>> futures;
+            int running = 0;
             for (size_t i=0; i<n_rows; ++i) {
-                futures[i] = std::async(density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(X), std::ref(trained_centers_), std::ref(predicted_quantiles_), accuracy_predicted_quantiles_);
+                futures.push_back(std::async(std::launch::async, density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(X), std::ref(trained_centers_), std::ref(predicted_quantiles_), accuracy_predicted_quantiles_));
+                ++running;
+                wait_for_futures(futures, running, threads);
             }
             for (auto& future : futures) future.get();
         } else {
@@ -189,6 +196,18 @@ protected:
         }
         const auto quants = densitas::math::quantiles_weighted<ElementType>(centers, weights, quantiles, accuracy);
         densitas::core::assign_vector_to_row<ElementType>(prediction, event_index, quants);
+    }
+
+    int wait_for_futures(const std::vector<std::future<void>>& futures, int n_running, int max_futures) const
+    {
+        while (n_running >= max_futures) {
+            n_running = 0;
+            for (const auto& future : futures) {
+                if (future.wait_for(std::chrono::seconds(0)) != std::future_status::ready)
+                    ++n_running;
+            }
+        }
+        return n_running;
     }
 
     void check_n_models(size_t n_models) const
