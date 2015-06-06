@@ -219,7 +219,7 @@ TEST(test_density_estimator_predict_more_quantiles) {
     estimator_t estimator(model, n_models);
     estimator.train(X, y, true);
 
-    const auto quantiles = vector_t{0.05, 0.5, 0.95};
+    const auto quantiles = vector_t{0.01, 0.05, 0.5, 0.95, 0.99};
     estimator.predicted_quantiles(quantiles);
     const matrix_t prediction = estimator.predict(X, true);
     assert_equal(y.n_elem, prediction.n_rows, SPOT);
