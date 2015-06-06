@@ -15,3 +15,5 @@ To build and run the tests the following libraries are required:
 - liblinear (http://www.csie.ntu.edu.tw/~cjlin/liblinear)
 - armadillo (http://arma.sourceforge.net)
 - libunittest (http://libunittest.sourceforge.net)
+
+densitas itself has no dependencies except for the standard library.
