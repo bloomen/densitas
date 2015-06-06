@@ -3,6 +3,10 @@ densitas is a C++ library for density estimation of regression problems.
 With densitas you can estimate the quantiles of the unknown probability
 distribution around the true value for each event.
 
+densitas implements the approach first proposed in:
+Predicting Conditional Probability Distributions: A Connectionist Approach, 1995
+Weigend, A. S., and A. N. Srivastava, International Journal of Neural Systems
+
 For further insight have a look at densitas/density_estimator.hpp
 
 A real world example can be found at test/real_world_with_liblinear.cpp
