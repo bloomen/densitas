@@ -1,8 +1,8 @@
 #pragma once
 #include <thread>
-#include <unordered_map>
 #include <memory>
 #include <atomic>
+#include <list>
 
 
 namespace densitas {
@@ -41,7 +41,7 @@ public:
         wait_for_threads();
         auto done = std::make_shared<std::atomic_bool>(false);
         std::thread thread(densitas::core::runner(done), std::forward<Functor>(functor), std::forward<Args>(args)...);
-        threads_.emplace(threads_.size(), std::make_pair(done, std::move(thread)));
+        threads_.push_back(std::make_pair(done, std::move(thread)));
     }
 
     thread_pool(const thread_pool&) = delete;
@@ -51,7 +51,7 @@ public:
 
 protected:
     const size_t max_threads_;
-    std::unordered_map<size_t, std::pair<std::shared_ptr<std::atomic_bool>, std::thread>> threads_;
+    std::list<std::pair<std::shared_ptr<std::atomic_bool>, std::thread>> threads_;
 
     void wait_for_threads();
 };

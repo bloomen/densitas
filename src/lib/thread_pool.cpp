@@ -1,4 +1,5 @@
 #include "densitas/thread_pool.hpp"
+#include <vector>
 
 
 namespace densitas {
@@ -13,7 +14,7 @@ runner::runner(std::shared_ptr<std::atomic_bool> done)
 thread_pool::~thread_pool()
 {
     for (auto& thread : threads_) {
-        thread.second.second.join();
+        thread.second.join();
     }
 }
 
@@ -24,10 +25,12 @@ thread_pool::thread_pool(int max_threads)
 void thread_pool::wait_for_threads()
 {
     while (threads_.size() >= max_threads_-1) {
-        for (auto& thread : threads_) {
-            if (thread.second.first->load()) {
-                thread.second.second.join();
-                threads_.erase(thread.first);
+        for (auto it = threads_.begin(); it != threads_.cend();) {
+            if (it->first->load()) {
+                it->second.join();
+                threads_.erase(it++);
+            } else {
+                ++it;
             }
         }
     }

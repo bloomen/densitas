@@ -111,7 +111,7 @@ public:
      * Trains the density estimator
      * @param X A matrix of shape (n_events, n_features)
      * @param y A vector of shape (n_events)
-     * @param threads Max number of threads to launch for each model training
+     * @param threads Max number of threads to launch, single-threaded if <= 1
      */
     void train(const MatrixType& X, const VectorType& y, int threads=1)
     {
@@ -134,7 +134,7 @@ public:
     /**
      * Predicts events using this trained density estimator
      * @param X A matrix of shape (n_events, n_features)
-     * @param threads Max number of threads to launch for each prediction event
+     * @param threads Max number of threads to launch, single-threaded if <= 1
      * @return A matrix of shape (n_events, n_predicted_quantiles)
      */
     MatrixType predict(const MatrixType& X, int threads=1) const

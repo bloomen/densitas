@@ -10,7 +10,7 @@ struct tpool : densitas::core::thread_pool {
         return max_threads_;
     }
 
-    std::unordered_map<size_t, std::pair<std::shared_ptr<std::atomic_bool>, std::thread>>& get_threads()
+    std::list<std::pair<std::shared_ptr<std::atomic_bool>, std::thread>>& get_threads()
     {
         return threads_;
     }
