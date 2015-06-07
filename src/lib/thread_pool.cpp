@@ -5,25 +5,38 @@ namespace densitas {
 namespace core {
 
 
+runner::runner(std::shared_ptr<std::atomic_bool> done)
+    : done_(std::move(done))
+{}
+
+
+thread::~thread()
+{
+    if (thread_.get_id() != std::thread::id())
+        thread_.join();
+}
+
+std::shared_ptr<std::atomic_bool> thread::done()
+{
+    return done_;
+}
+
+
 thread_pool::thread_pool(int max_threads)
-    : max_threads_(max_threads<1 ? 1 : max_threads), n_running_(0), futures_()
+    : max_threads_(max_threads<1 ? 1 : max_threads), n_running_(0), threads_()
 {}
 
 thread_pool::~thread_pool()
-{
-    for (auto& future : futures_) future.get();
-}
+{}
 
-void thread_pool::wait_for_futures()
+void thread_pool::wait_for_threads()
 {
-    while (n_running_ >= max_threads_) {
-        for (int i=futures_.size()-1; i>=0; --i) {
-            if (futures_[i].wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-                futures_[i].get();
-                futures_.erase(futures_.begin() + i);
-            }
+    while (n_running_ >= max_threads_-1) {
+        for (size_t i=0; i<threads_.size(); ++i) {
+            if (threads_[i].done())
+                threads_.erase(i);
         }
-        n_running_ = futures_.size();
+        n_running_ = threads_.size();
     }
 }
 
