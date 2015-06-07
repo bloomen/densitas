@@ -5,10 +5,9 @@
 #include "matrix_adapter.hpp"
 #include "vector_adapter.hpp"
 #include "manipulation.hpp"
+#include "thread_pool.hpp"
 #include <vector>
-#include <future>
 #include <memory>
-#include <chrono>
 
 
 namespace densitas {
@@ -121,14 +120,10 @@ public:
         const auto trained_quantiles = densitas::math::quantiles<ElementType>(y, quantiles);
         trained_centers_ = densitas::math::centers<ElementType>(y, trained_quantiles);
         if (threads > 1) {
-            std::vector<std::future<void>> futures;
-            int running = 0;
+            densitas::core::thread_pool pool(threads);
             for (size_t i=0; i<models_.size(); ++i) {
-                futures.push_back(std::async(std::launch::async, density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(y), std::ref(trained_quantiles)));
-                ++running;
-                wait_for_futures(futures, running, threads);
+                pool.launch_new(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(y), std::ref(trained_quantiles));
             }
-            for (auto& future : futures) future.get();
         } else {
             for (size_t i=0; i<models_.size(); ++i) {
                 density_estimator::train_model(models_[i], i, X, y, trained_quantiles);
@@ -149,14 +144,10 @@ public:
         const auto n_quantiles = densitas::vector_adapter::n_elements(predicted_quantiles_);
         auto prediction = densitas::matrix_adapter::construct_uninitialized<MatrixType>(n_rows, n_quantiles);
         if (threads > 1) {
-            std::vector<std::future<void>> futures;
-            int running = 0;
+            densitas::core::thread_pool pool(threads);
             for (size_t i=0; i<n_rows; ++i) {
-                futures.push_back(std::async(std::launch::async, density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(X), std::ref(trained_centers_), std::ref(predicted_quantiles_), accuracy_predicted_quantiles_));
-                ++running;
-                wait_for_futures(futures, running, threads);
+                pool.launch_new(density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(X), std::ref(trained_centers_), std::ref(predicted_quantiles_), accuracy_predicted_quantiles_);
             }
-            for (auto& future : futures) future.get();
         } else {
             for (size_t i=0; i<n_rows; ++i) {
                 density_estimator::predict_event(prediction, models_, i, X, trained_centers_, predicted_quantiles_, accuracy_predicted_quantiles_);
@@ -196,18 +187,6 @@ protected:
         }
         const auto quants = densitas::math::quantiles_weighted<ElementType>(centers, weights, quantiles, accuracy);
         densitas::core::assign_vector_to_row<ElementType>(prediction, event_index, quants);
-    }
-
-    int wait_for_futures(const std::vector<std::future<void>>& futures, int n_running, int max_futures) const
-    {
-        while (n_running >= max_futures) {
-            n_running = 0;
-            for (const auto& future : futures) {
-                if (future.wait_for(std::chrono::seconds(0)) != std::future_status::ready)
-                    ++n_running;
-            }
-        }
-        return n_running;
     }
 
     void check_n_models(size_t n_models) const

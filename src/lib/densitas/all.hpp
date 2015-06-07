@@ -7,4 +7,5 @@
 #include "vector_adapter.hpp"
 #include "manipulation.hpp"
 #include "type_check.hpp"
+#include "thread_pool.hpp"
 #include "version.hpp"

@@ -22,6 +22,7 @@ vector_adapter.cpp \
 matrix_adapter.cpp \
 model_adapter.cpp \
 version.cpp \
-real_world_with_liblinear.cpp
+real_world_with_liblinear.cpp \
+thread_pool.cpp
 
 unittest_LDADD = $(top_builddir)/src/lib/.libs/libdensitas.a -lunittest -larmadillo -llinear $(AM_LDFLAGS)
