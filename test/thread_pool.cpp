@@ -10,12 +10,7 @@ struct tpool : densitas::core::thread_pool {
         return max_threads_;
     }
 
-    size_t get_n_running()
-    {
-        return n_running_;
-    }
-
-    std::unordered_map<size_t, densitas::core::thread>& get_threads()
+    std::unordered_map<size_t, std::pair<std::shared_ptr<std::atomic_bool>, std::thread>>& get_threads()
     {
         return threads_;
     }
@@ -48,7 +43,6 @@ TEST(test_construct)
 {
     tpool tp(42);
     assert_equal(42u, tp.get_max_threads(), SPOT);
-    assert_equal(0, tp.get_n_running(), SPOT);
     assert_equal(0, tp.get_threads().size(), SPOT);
 }
 
@@ -64,7 +58,6 @@ TEST(test_launch_new_without_args)
     {
         tpool tp(3);
         tp.launch_new(std::ref(func));
-        assert_equal(1, tp.get_n_running(), SPOT);
         assert_equal(1, tp.get_threads().size(), SPOT);
     }
     assert_true(func.called, SPOT);
@@ -76,7 +69,6 @@ TEST(test_launch_new_with_some_args)
     {
         tpool tp(5);
         tp.launch_new(std::ref(func), 1, 5.);
-        assert_equal(1, tp.get_n_running(), SPOT);
         assert_equal(1, tp.get_threads().size(), SPOT);
     }
     assert_true(func.called, SPOT);

@@ -10,33 +10,26 @@ runner::runner(std::shared_ptr<std::atomic_bool> done)
 {}
 
 
-thread::~thread()
+thread_pool::~thread_pool()
 {
-    if (thread_.get_id() != std::thread::id())
-        thread_.join();
+    for (auto& thread : threads_) {
+        thread.second.second.join();
+    }
 }
-
-std::shared_ptr<std::atomic_bool> thread::done()
-{
-    return done_;
-}
-
 
 thread_pool::thread_pool(int max_threads)
-    : max_threads_(max_threads<1 ? 1 : max_threads), n_running_(0), threads_()
-{}
-
-thread_pool::~thread_pool()
+    : max_threads_(max_threads<1 ? 1 : max_threads), threads_()
 {}
 
 void thread_pool::wait_for_threads()
 {
-    while (n_running_ >= max_threads_-1) {
-        for (size_t i=0; i<threads_.size(); ++i) {
-            if (threads_[i].done())
-                threads_.erase(i);
+    while (threads_.size() >= max_threads_-1) {
+        for (auto& thread : threads_) {
+            if (thread.second.first->load()) {
+                thread.second.second.join();
+                threads_.erase(thread.first);
+            }
         }
-        n_running_ = threads_.size();
     }
 }
 

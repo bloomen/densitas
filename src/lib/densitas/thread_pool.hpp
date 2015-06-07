@@ -27,32 +27,6 @@ private:
 };
 
 
-class thread {
-public:
-
-    thread()
-        : done_(std::make_shared<std::atomic_bool>(false)), thread_()
-    {}
-
-    template<typename Functor, typename... Args>
-    explicit
-    thread(Functor&& functor, Args&&... args)
-        : thread()
-    {
-        densitas::core::runner runner(done_);
-        thread_ = std::thread(std::move(runner), std::forward<Functor>(functor), std::forward<Args>(args)...);
-    }
-
-    ~thread();
-
-    std::shared_ptr<std::atomic_bool> done();
-
-private:
-    std::shared_ptr<std::atomic_bool> done_;
-    std::thread thread_;
-};
-
-
 class thread_pool {
 public:
 
@@ -65,10 +39,9 @@ public:
     void launch_new(Functor&& functor, Args&&... args)
     {
         wait_for_threads();
-        threads_.emplace(std::piecewise_construct,
-                         std::forward_as_tuple(threads_.size()),
-                         std::forward_as_tuple(std::forward<Functor>(functor), std::forward<Args>(args)...));
-        ++n_running_;
+        auto done = std::make_shared<std::atomic_bool>(false);
+        std::thread thread(densitas::core::runner(done), std::forward<Functor>(functor), std::forward<Args>(args)...);
+        threads_.emplace(threads_.size(), std::make_pair(done, std::move(thread)));
     }
 
     thread_pool(const thread_pool&) = delete;
@@ -78,8 +51,7 @@ public:
 
 protected:
     const size_t max_threads_;
-    size_t n_running_;
-    std::unordered_map<size_t, densitas::core::thread> threads_;
+    std::unordered_map<size_t, std::pair<std::shared_ptr<std::atomic_bool>, std::thread>> threads_;
 
     void wait_for_threads();
 };
