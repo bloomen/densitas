@@ -137,7 +137,7 @@ public:
      * @param threads Max number of threads to launch, single-threaded if <= 1
      * @return A matrix of shape (n_events, n_predicted_quantiles)
      */
-    MatrixType predict(const MatrixType& X, int threads=1) const
+    MatrixType predict(const MatrixType& X, int threads=1)
     {
         check_n_models(models_.size());
         const auto n_rows = densitas::matrix_adapter::n_rows(X);
