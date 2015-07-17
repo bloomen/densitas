@@ -178,7 +178,7 @@ protected:
         densitas::model_adapter::train(model, features, target);
     }
 
-    static void predict_event(MatrixType& prediction, const std::vector<ModelType>& models, size_t event_index, const MatrixType& features, const VectorType& centers, const VectorType& quantiles, double accuracy)
+    static void predict_event(MatrixType& prediction, std::vector<ModelType>& models, size_t event_index, const MatrixType& features, const VectorType& centers, const VectorType& quantiles, double accuracy)
     {
         auto weights = densitas::vector_adapter::construct_uninitialized<VectorType>(models.size());
         for (size_t j=0; j<models.size(); ++j) {
