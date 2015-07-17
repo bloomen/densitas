@@ -36,24 +36,20 @@ struct functor {
 };
 
 
-COLLECTION(thread_pool)
-{
+COLLECTION(thread_pool) {
 
-TEST(test_construct)
-{
+TEST(test_construct) {
     tpool tp(42);
     assert_equal(42u, tp.get_max_threads(), SPOT);
     assert_equal(0, tp.get_threads().size(), SPOT);
 }
 
-TEST(test_construct_with_weird_param)
-{
+TEST(test_construct_with_weird_param) {
     tpool tp(-3);
     assert_equal(1u, tp.get_max_threads(), SPOT);
 }
 
-TEST(test_launch_new_without_args)
-{
+TEST(test_launch_new_without_args) {
     functor<> func;
     {
         tpool tp(3);
@@ -63,8 +59,7 @@ TEST(test_launch_new_without_args)
     assert_true(func.called, SPOT);
 }
 
-TEST(test_launch_new_with_some_args)
-{
+TEST(test_launch_new_with_some_args) {
     functor<int, double> func;
     {
         tpool tp(5);
@@ -74,8 +69,7 @@ TEST(test_launch_new_with_some_args)
     assert_true(func.called, SPOT);
 }
 
-TEST(test_launch_many)
-{
+TEST(test_launch_many) {
     functor<int, double> func;
     {
         tpool tp(4);
