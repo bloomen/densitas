@@ -56,4 +56,4 @@ ElementType predict_proba_for_row(const ModelType& model, const MatrixType& X, s
 
 
 } // core
-} //densitas
+} // densitas

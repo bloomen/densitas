@@ -7,7 +7,7 @@ namespace core {
 
 
 runner::runner(std::shared_ptr<std::atomic_bool> done)
-    : done_(std::move(done))
+: done_(std::move(done))
 {}
 
 
@@ -19,7 +19,7 @@ thread_pool::~thread_pool()
 }
 
 thread_pool::thread_pool(int max_threads)
-    : max_threads_(max_threads<1 ? 1 : max_threads), threads_()
+: max_threads_(max_threads<1 ? 1 : max_threads), threads_()
 {}
 
 void thread_pool::wait_for_threads()
