@@ -4,33 +4,33 @@
 class mock_matrix {
 public:
 
-    const size_t n_rows_;
-    const size_t n_cols_;
-    size_t row_index_used_;
-    size_t col_index_used_;
+    const std::size_t n_rows_;
+    const std::size_t n_cols_;
+    std::size_t row_index_used_;
+    std::size_t col_index_used_;
     double value_;
 
-    mock_matrix(size_t n_rows, size_t n_cols)
+    mock_matrix(std::size_t n_rows, std::size_t n_cols)
         : n_rows_(n_rows), n_cols_(n_cols),
           row_index_used_(0), col_index_used_(0), value_(0)
     {}
 
-    size_t n_rows() const
+    std::size_t n_rows() const
     {
         return n_rows_;
     }
 
-    size_t n_cols() const
+    std::size_t n_cols() const
     {
         return n_cols_;
     }
 
-    double operator()(size_t, size_t) const
+    double operator()(std::size_t, std::size_t) const
     {
         return value_;
     }
 
-    double& operator()(size_t i, size_t j)
+    double& operator()(std::size_t i, std::size_t j)
     {
         row_index_used_ = i;
         col_index_used_ = j;

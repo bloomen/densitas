@@ -5,7 +5,7 @@ struct tpool : densitas::core::thread_pool {
 
     using densitas::core::thread_pool::thread_pool;
 
-    size_t get_max_threads()
+    std::size_t get_max_threads()
     {
         return max_threads_;
     }

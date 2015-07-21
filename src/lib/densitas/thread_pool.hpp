@@ -50,7 +50,7 @@ public:
     thread_pool& operator=(thread_pool&&) = delete;
 
 protected:
-    const size_t max_threads_;
+    const std::size_t max_threads_;
     std::list<std::pair<std::shared_ptr<std::atomic_bool>, std::thread>> threads_;
 
     void wait_for_threads();

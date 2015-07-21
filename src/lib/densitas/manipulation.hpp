@@ -9,7 +9,7 @@ namespace core {
 
 
 template<typename ElementType, typename MatrixType, typename VectorType>
-void assign_vector_to_row(MatrixType& matrix, size_t row_index, const VectorType& vector)
+void assign_vector_to_row(MatrixType& matrix, std::size_t row_index, const VectorType& vector)
 {
     densitas::core::check_element_type<ElementType>();
     const auto n_rows = densitas::matrix_adapter::n_rows(matrix);
@@ -19,7 +19,7 @@ void assign_vector_to_row(MatrixType& matrix, size_t row_index, const VectorType
     const auto n_cols = densitas::matrix_adapter::n_columns(matrix);
     if (n_cols != n_elem)
         throw densitas::densitas_error("size of vector not matching number of columns in matrix");
-    for (size_t i=0; i<n_cols; ++i) {
+    for (std::size_t i=0; i<n_cols; ++i) {
         const auto value = densitas::vector_adapter::get_element<ElementType>(vector, i);
         densitas::matrix_adapter::set_element<ElementType>(matrix, row_index, i, value);
     }
@@ -27,7 +27,7 @@ void assign_vector_to_row(MatrixType& matrix, size_t row_index, const VectorType
 
 
 template<typename ElementType, typename VectorType, typename MatrixType>
-VectorType extract_row(const MatrixType& matrix, size_t row_index)
+VectorType extract_row(const MatrixType& matrix, std::size_t row_index)
 {
     densitas::core::check_element_type<ElementType>();
     const auto n_rows = densitas::matrix_adapter::n_rows(matrix);
@@ -35,7 +35,7 @@ VectorType extract_row(const MatrixType& matrix, size_t row_index)
         throw densitas::densitas_error("row index larger than rows in matrix: " + std::to_string(row_index));
     const auto n_cols = densitas::matrix_adapter::n_columns(matrix);
     auto vector = densitas::vector_adapter::construct_uninitialized<VectorType>(n_cols);
-    for (size_t i=0; i<n_cols; ++i) {
+    for (std::size_t i=0; i<n_cols; ++i) {
         const auto value = densitas::matrix_adapter::get_element<ElementType>(matrix, row_index, i);
         densitas::vector_adapter::set_element<ElementType>(vector, i, value);
     }
@@ -44,7 +44,7 @@ VectorType extract_row(const MatrixType& matrix, size_t row_index)
 
 
 template<typename ElementType, typename VectorType, typename MatrixType, typename ModelType>
-ElementType predict_proba_for_row(ModelType& model, const MatrixType& X, size_t row_index)
+ElementType predict_proba_for_row(ModelType& model, const MatrixType& X, std::size_t row_index)
 {
     const auto n_cols = densitas::matrix_adapter::n_columns(X);
     const auto feature_row = densitas::core::extract_row<ElementType, VectorType>(X, row_index);

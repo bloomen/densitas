@@ -54,7 +54,7 @@ public:
      * @param model A binary classifier. Must implement copy semantics
      * @param n_models The number of models to use
      */
-    density_estimator(const ModelType& model, size_t n_models)
+    density_estimator(const ModelType& model, std::size_t n_models)
     : density_estimator()
     {
         set_models(model, n_models);
@@ -78,11 +78,11 @@ public:
      * @param model A binary classifier. Must implement copy semantics
      * @param n_models The number of models to use
      */
-    void set_models(const ModelType& model, size_t n_models)
+    void set_models(const ModelType& model, std::size_t n_models)
     {
         check_n_models(n_models);
         models_.clear();
-        for (size_t i=0; i<n_models; ++i)
+        for (std::size_t i=0; i<n_models; ++i)
             models_.push_back(model);
     }
 
@@ -121,12 +121,12 @@ public:
         trained_centers_ = densitas::math::centers<ElementType>(y, trained_quantiles);
         if (threads > 1) {
             densitas::core::thread_pool pool(threads);
-            for (size_t i=0; i<models_.size(); ++i) {
+            for (std::size_t i=0; i<models_.size(); ++i) {
                 on_train_status(i);
                 pool.launch_new(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(y), std::ref(trained_quantiles));
             }
         } else {
-            for (size_t i=0; i<models_.size(); ++i) {
+            for (std::size_t i=0; i<models_.size(); ++i) {
                 on_train_status(i);
                 density_estimator::train_model(models_[i], i, X, y, trained_quantiles);
             }
@@ -147,12 +147,12 @@ public:
         auto prediction = densitas::matrix_adapter::construct_uninitialized<MatrixType>(n_rows, n_quantiles);
         if (threads > 1) {
             densitas::core::thread_pool pool(threads);
-            for (size_t i=0; i<n_rows; ++i) {
+            for (std::size_t i=0; i<n_rows; ++i) {
                 on_predict_status(i);
                 pool.launch_new(density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(X), std::ref(trained_centers_), std::ref(predicted_quantiles_), accuracy_predicted_quantiles_);
             }
         } else {
-            for (size_t i=0; i<n_rows; ++i) {
+            for (std::size_t i=0; i<n_rows; ++i) {
                 on_predict_status(i);
                 density_estimator::predict_event(prediction, models_, i, X, trained_centers_, predicted_quantiles_, accuracy_predicted_quantiles_);
             }
@@ -174,7 +174,7 @@ protected:
     VectorType predicted_quantiles_;
     ElementType accuracy_predicted_quantiles_;
 
-    static void train_model(ModelType& model, size_t model_index, MatrixType features, const VectorType& y, const VectorType& trained_quantiles)
+    static void train_model(ModelType& model, std::size_t model_index, MatrixType features, const VectorType& y, const VectorType& trained_quantiles)
     {
         const auto lower = densitas::vector_adapter::get_element<ElementType>(trained_quantiles, model_index);
         const auto upper = densitas::vector_adapter::get_element<ElementType>(trained_quantiles, model_index + 1);
@@ -182,10 +182,10 @@ protected:
         densitas::model_adapter::train(model, features, target);
     }
 
-    static void predict_event(MatrixType& prediction, std::vector<ModelType>& models, size_t event_index, const MatrixType& features, const VectorType& centers, const VectorType& quantiles, double accuracy)
+    static void predict_event(MatrixType& prediction, std::vector<ModelType>& models, std::size_t event_index, const MatrixType& features, const VectorType& centers, const VectorType& quantiles, double accuracy)
     {
         auto weights = densitas::vector_adapter::construct_uninitialized<VectorType>(models.size());
-        for (size_t j=0; j<models.size(); ++j) {
+        for (std::size_t j=0; j<models.size(); ++j) {
             const auto prob_value = densitas::core::predict_proba_for_row<ElementType, VectorType>(models[j], features, event_index);
             densitas::vector_adapter::set_element<ElementType>(weights, j, prob_value);
         }
@@ -193,16 +193,16 @@ protected:
         densitas::core::assign_vector_to_row<ElementType>(prediction, event_index, quants);
     }
 
-    void check_n_models(size_t n_models) const
+    void check_n_models(std::size_t n_models) const
     {
         if (!(n_models > 1))
             throw densitas::densitas_error("number of models must be larger than one");
     }
 
-    virtual void on_train_status(size_t)
+    virtual void on_train_status(std::size_t)
     {}
 
-    virtual void on_predict_status(size_t)
+    virtual void on_predict_status(std::size_t)
     {}
 
 };

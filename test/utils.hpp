@@ -44,14 +44,14 @@ namespace matrix_adapter {
 
 template<>
 inline
-size_t n_rows(const matrix_t& matrix)
+std::size_t n_rows(const matrix_t& matrix)
 {
     return matrix.n_rows;
 }
 
 template<>
 inline
-size_t n_columns(const matrix_t& matrix)
+std::size_t n_columns(const matrix_t& matrix)
 {
     return matrix.n_cols;
 }
@@ -62,7 +62,7 @@ namespace vector_adapter {
 
 template<>
 inline
-size_t n_elements(const vector_t& vector)
+std::size_t n_elements(const vector_t& vector)
 {
     return vector.n_elem;
 }
@@ -82,7 +82,7 @@ assert_equal_containers(const matrix_t& expected,
 {
     assert_equal(expected.n_rows, actual.n_rows, "n_rows don't match! ", message...);
     assert_equal(expected.n_cols, actual.n_cols, "n_cols don't match! ", message...);
-    for (size_t i=0; i<expected.n_rows; ++i) {
+    for (std::size_t i=0; i<expected.n_rows; ++i) {
         if (!unittest::core::is_containers_equal(vector_t(expected.row(i).t()), vector_t(actual.row(i).t()))) {
             const std::string text = "matrices are not equal";
             unittest::fail(UNITTEST_FUNC, text, message...);
@@ -99,7 +99,7 @@ assert_approx_equal_containers(const matrix_t& expected,
 {
     assert_equal(expected.n_rows, actual.n_rows, "n_rows don't match! ", message...);
     assert_equal(expected.n_cols, actual.n_cols, "n_cols don't match! ", message...);
-    for (size_t i=0; i<expected.n_rows; ++i) {
+    for (std::size_t i=0; i<expected.n_rows; ++i) {
         if (!unittest::core::is_containers_approx_equal(vector_t(expected.row(i).t()), vector_t(actual.row(i).t()), eps)) {
             const std::string text = "matrices are not approx. equal";
             unittest::fail(UNITTEST_FUNC, text, message...);

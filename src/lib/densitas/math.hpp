@@ -19,7 +19,7 @@ VectorType make_classification_target(const VectorType& y, ElementType lower, El
     densitas::core::check_element_type<ElementType>();
     const auto n_elem = densitas::vector_adapter::n_elements(y);
     auto target = densitas::vector_adapter::construct_uninitialized<VectorType>(n_elem);
-    for (size_t i=0; i<n_elem; ++i) {
+    for (std::size_t i=0; i<n_elem; ++i) {
         const auto value = densitas::vector_adapter::get_element<ElementType>(y, i);
         const auto cls_result = value<lower || value>upper ? densitas::model_adapter::no<ModelType>() : densitas::model_adapter::yes<ModelType>();
         densitas::vector_adapter::set_element<ElementType>(target, i, cls_result);
@@ -36,7 +36,7 @@ ElementType minimum(const VectorType& vector)
     if (!(n_elem > 0))
         throw densitas::densitas_error("vector is of size zero");
     auto minimum = std::numeric_limits<ElementType>::max();
-    for (size_t i=0; i<n_elem; ++i) {
+    for (std::size_t i=0; i<n_elem; ++i) {
         const auto value = densitas::vector_adapter::get_element<ElementType>(vector, i);
         if (value < minimum)
             minimum = value;
@@ -58,7 +58,7 @@ ElementType quantile(std::vector<ElementType>& data, ElementType proba)
     if (proba == 1)
         return *std::max_element(data.begin(), data.end());
     const ElementType pos = data.size() * proba;
-    const size_t ind = static_cast<size_t>(pos);
+    const std::size_t ind = static_cast<std::size_t>(pos);
     const ElementType delta = pos - ind;
     std::nth_element(data.begin(), data.begin() + ind - 1, data.end());
     const ElementType i1 = *(data.begin() + ind - 1);
@@ -73,12 +73,12 @@ VectorType quantiles(const VectorType& vector, const VectorType& probas)
     densitas::core::check_element_type<ElementType>();
     const auto n_elem = densitas::vector_adapter::n_elements(vector);
     std::vector<ElementType> data(n_elem);
-    for (size_t i=0; i<n_elem; ++i) {
+    for (std::size_t i=0; i<n_elem; ++i) {
         data[i] = densitas::vector_adapter::get_element<ElementType>(vector, i);
     }
     const auto n_probas = densitas::vector_adapter::n_elements(probas);
     auto quantiles = densitas::vector_adapter::construct_uninitialized<VectorType>(n_probas);
-    for (size_t i=0; i<n_probas; ++i) {
+    for (std::size_t i=0; i<n_probas; ++i) {
         const auto proba = densitas::vector_adapter::get_element<ElementType>(probas, i);
         const auto quantile = densitas::math::quantile(data, proba);
         densitas::vector_adapter::set_element<ElementType>(quantiles, i, quantile);
@@ -98,18 +98,18 @@ VectorType quantiles_weighted(const VectorType& vector, const VectorType& weight
         throw densitas::densitas_error("quantile accuracy must be between zero and one, not: " + std::to_string(accuracy));
     auto min_weight = densitas::math::minimum<ElementType>(weights);
     if (min_weight < accuracy) min_weight = accuracy;
-    std::vector<size_t> counts(n_elem);
-    for (size_t i=0; i<n_elem; ++i) {
+    std::vector<std::size_t> counts(n_elem);
+    for (std::size_t i=0; i<n_elem; ++i) {
         const auto weight = densitas::vector_adapter::get_element<ElementType>(weights, i);
-        counts[i] = static_cast<size_t>(weight / min_weight);
+        counts[i] = static_cast<std::size_t>(weight / min_weight);
     }
     const auto n_vals = std::accumulate(counts.begin(), counts.end(), 0);
     auto extended = n_vals > 0 ? densitas::vector_adapter::construct_uninitialized<VectorType>(n_vals) : vector;
     if (n_vals > 0) {
-        size_t index = 0;
-        for (size_t i=0; i<counts.size(); ++i) {
+        std::size_t index = 0;
+        for (std::size_t i=0; i<counts.size(); ++i) {
             const auto value = densitas::vector_adapter::get_element<ElementType>(vector, i);
-            for (size_t j=0; j<counts[i]; ++j) {
+            for (std::size_t j=0; j<counts[i]; ++j) {
                 densitas::vector_adapter::set_element<ElementType>(extended, index, value);
                 ++index;
             }
@@ -120,7 +120,7 @@ VectorType quantiles_weighted(const VectorType& vector, const VectorType& weight
 
 
 template<typename VectorType, typename ElementType>
-VectorType linspace(ElementType start, ElementType end, size_t n)
+VectorType linspace(ElementType start, ElementType end, std::size_t n)
 {
     densitas::core::check_element_type<ElementType>();
     if (!(end > start))
@@ -129,7 +129,7 @@ VectorType linspace(ElementType start, ElementType end, size_t n)
         throw densitas::densitas_error("n must be larger than one, not: " + std::to_string(n));
     const auto delta = (end - start) / (n - 1);
     auto linspace = densitas::vector_adapter::construct_uninitialized<VectorType>(n);
-    for (size_t i=0; i<n; ++i) {
+    for (std::size_t i=0; i<n; ++i) {
         densitas::vector_adapter::set_element<ElementType>(linspace, i, start + i*delta);
     }
     return linspace;
@@ -147,12 +147,12 @@ VectorType centers(const VectorType& data, const VectorType& quantiles)
     if (!(n_quant > 1))
         throw densitas::densitas_error("size of quantiles must be larger than one, not: " + std::to_string(n_quant));
     const auto n_elem = n_quant - 1;
-    std::vector<size_t> counter(n_elem, 0);
+    std::vector<std::size_t> counter(n_elem, 0);
     std::vector<ElementType> accumulator(n_elem, 0.);
-    for (size_t i=0; i<n_data; ++i) {
+    for (std::size_t i=0; i<n_data; ++i) {
         int current_j = -1;
         const auto value = densitas::vector_adapter::get_element<ElementType>(data, i);
-        for (size_t j=0; j<n_elem; ++j) {
+        for (std::size_t j=0; j<n_elem; ++j) {
             const auto first = densitas::vector_adapter::get_element<ElementType>(quantiles, j);
             const auto second = densitas::vector_adapter::get_element<ElementType>(quantiles, j + 1);
             if (value>=first && value<=second) {
@@ -164,7 +164,7 @@ VectorType centers(const VectorType& data, const VectorType& quantiles)
         }
     }
     auto centers = densitas::vector_adapter::construct_uninitialized<VectorType>(n_elem);
-    for (size_t j=0; j<n_elem; ++j) {
+    for (std::size_t j=0; j<n_elem; ++j) {
         if (counter[j]==0) counter[j] = 1;
         densitas::vector_adapter::set_element<ElementType>(centers, j, accumulator[j] / counter[j]);
     }

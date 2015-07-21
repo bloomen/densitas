@@ -7,7 +7,7 @@ using estimator_t = densitas::density_estimator<mock_model, matrix_t, vector_t>;
 
 struct extended_estimator : estimator_t {
 
-    extended_estimator(const mock_model& model, size_t n_models)
+    extended_estimator(const mock_model& model, std::size_t n_models)
         : estimator_t(model, n_models)
     {}
 
@@ -92,7 +92,7 @@ void make_test_predict(bool async)
     assert_equal(X.n_rows, y_resp.n_rows, SPOT);
     assert_equal(2u, y_resp.n_cols, SPOT);
     auto y_exp = matrix_t(X.n_rows, 2u);
-    for (size_t i=0; i<X.n_rows; ++i) {
+    for (std::size_t i=0; i<X.n_rows; ++i) {
         y_exp.row(i) = vector_t{5.5, 7.5}.t();
     }
     assert_equal_containers(y_exp, y_resp, SPOT);

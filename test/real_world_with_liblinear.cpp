@@ -100,7 +100,7 @@ struct classifier {
         auto problem = make_problem(X, vector_t{}, false);
         auto probas = vector_t(problem->l);
         double estimates[2];
-        for (size_t i=0; i<probas.n_elem; ++i) {
+        for (std::size_t i=0; i<probas.n_elem; ++i) {
             const auto value = predict_probability(model_.get(), problem->x[i], estimates);
             probas(i) = value==densitas::model_adapter::yes<classifier>() ? std::max(estimates[0], estimates[1]) : std::min(estimates[0], estimates[1]);
         }
@@ -191,7 +191,7 @@ TEST(test_density_estimator) {
     const auto y = get_y();
     const classifier model;
 
-    const size_t n_models = 9;
+    const std::size_t n_models = 9;
     estimator_t estimator(model, n_models);
     estimator.train(X, y);
 
@@ -201,7 +201,7 @@ TEST(test_density_estimator) {
     assert_equal(y.n_elem, prediction.n_elem, SPOT);
 
     double error = 0;
-    for (size_t i=0; i<y.n_elem; ++i) {
+    for (std::size_t i=0; i<y.n_elem; ++i) {
         error += std::abs(y(i) - prediction(i));
         assert_lesser_equal(lower(i), prediction(i), SPOT);
         assert_lesser_equal(prediction(i), upper(i), SPOT);
@@ -215,7 +215,7 @@ TEST(test_density_estimator_predict_more_quantiles) {
     const auto y = get_y();
     const classifier model;
 
-    const size_t n_models = 9;
+    const std::size_t n_models = 9;
     estimator_t estimator(model, n_models);
     estimator.train(X, y, 3);
 

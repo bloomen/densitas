@@ -4,26 +4,26 @@
 class mock_vector {
 public:
 
-    const size_t size_;
-    size_t index_used_;
+    const std::size_t size_;
+    std::size_t index_used_;
     double value_;
 
     explicit
-    mock_vector(size_t size)
+    mock_vector(std::size_t size)
         : size_(size), index_used_(0), value_(0)
     {}
 
-    size_t size() const
+    std::size_t size() const
     {
         return size_;
     }
 
-    double operator()(size_t) const
+    double operator()(std::size_t) const
     {
         return value_;
     }
 
-    double& operator()(size_t index)
+    double& operator()(std::size_t index)
     {
         index_used_ = index;
         return value_;
