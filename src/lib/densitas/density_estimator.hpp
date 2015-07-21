@@ -122,10 +122,12 @@ public:
         if (threads > 1) {
             densitas::core::thread_pool pool(threads);
             for (size_t i=0; i<models_.size(); ++i) {
+                on_train_status(i);
                 pool.launch_new(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(y), std::ref(trained_quantiles));
             }
         } else {
             for (size_t i=0; i<models_.size(); ++i) {
+                on_train_status(i);
                 density_estimator::train_model(models_[i], i, X, y, trained_quantiles);
             }
         }
@@ -146,10 +148,12 @@ public:
         if (threads > 1) {
             densitas::core::thread_pool pool(threads);
             for (size_t i=0; i<n_rows; ++i) {
+                on_predict_status(i);
                 pool.launch_new(density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(X), std::ref(trained_centers_), std::ref(predicted_quantiles_), accuracy_predicted_quantiles_);
             }
         } else {
             for (size_t i=0; i<n_rows; ++i) {
+                on_predict_status(i);
                 density_estimator::predict_event(prediction, models_, i, X, trained_centers_, predicted_quantiles_, accuracy_predicted_quantiles_);
             }
         }
@@ -194,6 +198,12 @@ protected:
         if (!(n_models > 1))
             throw densitas::densitas_error("number of models must be larger than one");
     }
+
+    virtual void on_train_status(size_t)
+    {}
+
+    virtual void on_predict_status(size_t)
+    {}
 
 };
 
