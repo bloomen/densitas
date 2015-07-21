@@ -28,7 +28,7 @@ namespace densitas {
  *             Specialize the functions in there if your matrix does things differently
  * VectorType: Operations on the vector type are defined in vector_adapter.hpp.
  *             Specialize the functions in there if your vector does things differently
- * ElementType: Must be an arithmetic type, e.g., float or double
+ * ElementType: Must be a floating point type, e.g., float or double
  */
 template<typename ModelType, typename MatrixType, typename VectorType, typename ElementType=double>
 class density_estimator {
@@ -82,8 +82,7 @@ public:
     {
         check_n_models(n_models);
         models_.clear();
-        for (std::size_t i=0; i<n_models; ++i)
-            models_.push_back(model);
+        models_.assign(n_models, model);
     }
 
     /**
