@@ -195,9 +195,10 @@ TEST(test_density_estimator) {
     estimator_t estimator(model, n_models);
     estimator.train(X, y);
 
-    const vector_t lower = estimator.predict(X).col(0);
-    const vector_t prediction = estimator.predict(X).col(1);
-    const vector_t upper = estimator.predict(X).col(2);
+    const matrix_t pred_matrix = estimator.predict(X);
+    const vector_t lower = pred_matrix.col(0);
+    const vector_t prediction = pred_matrix.col(1);
+    const vector_t upper = pred_matrix.col(2);
     assert_equal(y.n_elem, prediction.n_elem, SPOT);
 
     double error = 0;
@@ -217,11 +218,11 @@ TEST(test_density_estimator_predict_more_quantiles) {
 
     const std::size_t n_models = 9;
     estimator_t estimator(model, n_models);
-    estimator.train(X, y, 3);
+    estimator.train(X, y, 3, 0);
 
     const auto quantiles = vector_t{0.01, 0.05, 0.5, 0.95, 0.99};
     estimator.predicted_quantiles(quantiles);
-    const matrix_t prediction = estimator.predict(X, 4);
+    const matrix_t prediction = estimator.predict(X, 4, 0);
     assert_equal(y.n_elem, prediction.n_rows, SPOT);
     assert_equal(quantiles.n_elem, prediction.n_cols, SPOT);
 }

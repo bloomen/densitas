@@ -1,5 +1,5 @@
 #include "densitas/thread_pool.hpp"
-#include <vector>
+#include <chrono>
 
 
 namespace densitas {
@@ -18,14 +18,15 @@ thread_pool::~thread_pool()
     }
 }
 
-thread_pool::thread_pool(int max_threads)
-: max_threads_(max_threads<1 ? 1 : max_threads), threads_()
+thread_pool::thread_pool(int max_threads, std::size_t check_interval_ms)
+: max_threads_(max_threads<1 ? 1 : max_threads),
+  check_interval_ms_(check_interval_ms), threads_()
 {}
 
-void thread_pool::wait_for_threads()
+void thread_pool::wait_for_slot()
 {
-    while (threads_.size() >= max_threads_-1) {
-        for (auto it = threads_.begin(); it != threads_.cend();) {
+    while (threads_.size() >= max_threads_) {
+        for (auto it=threads_.begin(); it!=threads_.cend();) {
             if (it->first->load()) {
                 it->second.join();
                 threads_.erase(it++);
@@ -33,6 +34,8 @@ void thread_pool::wait_for_threads()
                 ++it;
             }
         }
+        if (threads_.size() >= max_threads_)
+            std::this_thread::sleep_for(std::chrono::milliseconds(check_interval_ms_));
     }
 }
 

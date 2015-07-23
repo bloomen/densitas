@@ -30,15 +30,16 @@ private:
 class thread_pool {
 public:
 
-    explicit
-    thread_pool(int max_threads);
+    thread_pool(int max_threads, std::size_t check_interval_ms);
 
     virtual ~thread_pool();
+
+    void wait_for_slot();
 
     template<typename Functor, typename... Args>
     void launch_new(Functor&& functor, Args&&... args)
     {
-        wait_for_threads();
+        wait_for_slot();
         auto done = std::make_shared<std::atomic_bool>(false);
         std::thread thread(densitas::core::runner(done), std::forward<Functor>(functor), std::forward<Args>(args)...);
         threads_.push_back(std::make_pair(done, std::move(thread)));
@@ -51,9 +52,8 @@ public:
 
 protected:
     const std::size_t max_threads_;
+    const std::size_t check_interval_ms_;
     std::list<std::pair<std::shared_ptr<std::atomic_bool>, std::thread>> threads_;
-
-    void wait_for_threads();
 };
 
 
