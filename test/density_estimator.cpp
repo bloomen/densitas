@@ -67,8 +67,8 @@ void make_test_train(bool async)
     const auto X = get_X();
     assert_equal_containers(X, models[0].train_X, SPOT);
     assert_equal_containers(X, models[1].train_X, SPOT);
-    const auto target1 = vector_t{yes, yes, no, no, no};
-    const auto target2 = vector_t{no, no, yes, yes, yes};
+    const auto target1 = vector_t{dyes, dyes, dno, dno, dno};
+    const auto target2 = vector_t{dno, dno, dyes, dyes, dyes};
     assert_equal_containers(target1, models[0].train_y, SPOT);
     assert_equal_containers(target2, models[1].train_y, SPOT);
 }

@@ -34,9 +34,13 @@ struct mock_model {
 };
 
 
-constexpr int no = densitas::model_adapter::no<mock_model>();
+const int no = densitas::model_adapter::no<mock_model>();
 
-constexpr int yes = densitas::model_adapter::yes<mock_model>();
+const int yes = densitas::model_adapter::yes<mock_model>();
+
+const double dno = static_cast<double>(no);
+
+const double dyes = static_cast<double>(yes);
 
 
 namespace densitas {

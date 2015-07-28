@@ -28,7 +28,7 @@ VectorType predict_proba(ModelType& model, MatrixType& X)
  * Returns the numerical representation of 'yes' as valid for the model type
  */
 template<typename ModelType>
-constexpr int yes()
+int yes()
 {
     return 1;
 }
@@ -37,7 +37,7 @@ constexpr int yes()
  * Returns the numerical representation of 'no' as valid for the model type
  */
 template<typename ModelType>
-constexpr int no()
+int no()
 {
     return -1;
 }
