@@ -12,8 +12,8 @@ For further insight have a look at densitas/density_estimator.hpp
 A real world example can be found at test/real_world_with_liblinear.cpp
 
 To build and run the tests the following libraries are required:
-- liblinear (http://www.csie.ntu.edu.tw/~cjlin/liblinear)
-- armadillo (http://arma.sourceforge.net)
-- libunittest (http://libunittest.sourceforge.net)
+- liblinear >= 2 (http://www.csie.ntu.edu.tw/~cjlin/liblinear)
+- armadillo >= 5 (http://arma.sourceforge.net)
+- libunittest >= 9 (http://libunittest.sourceforge.net)
 
 densitas itself has no dependencies except for the standard library.
