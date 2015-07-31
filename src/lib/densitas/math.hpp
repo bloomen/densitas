@@ -160,7 +160,7 @@ VectorType centers(const VectorType& data, const VectorType& quantiles)
                 ++counter[j];
                 current_j = j;
             }
-            if (current_j>0 && current_j!=j) break;
+            if (current_j>0 && static_cast<size_t>(current_j)!=j) break;
         }
     }
     auto centers = densitas::vector_adapter::construct_uninitialized<VectorType>(n_elem);
