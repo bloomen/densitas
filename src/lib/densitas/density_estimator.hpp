@@ -43,10 +43,7 @@ public:
       predicted_quantiles_(densitas::vector_adapter::construct_uninitialized<VectorType>(3)),
       accuracy_predicted_quantiles_(1e-2)
     {
-        densitas::core::check_element_type<ElementType>();
-        densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 0, 0.05);
-        densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 1, 0.5);
-        densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 2, 0.95);
+        init();
     }
 
     /**
@@ -55,8 +52,12 @@ public:
      * @param n_models The number of models to use
      */
     density_estimator(const ModelType& model, std::size_t n_models)
-    : density_estimator()
+    : models_(),
+      trained_centers_(densitas::vector_adapter::construct_uninitialized<VectorType>(0)),
+      predicted_quantiles_(densitas::vector_adapter::construct_uninitialized<VectorType>(3)),
+      accuracy_predicted_quantiles_(1e-2)
     {
+        init();
         set_models(model, n_models);
     }
 
@@ -183,6 +184,20 @@ protected:
 
     virtual void on_predict_status(std::size_t) {}
 
+    virtual void init()
+    {
+        densitas::core::check_element_type<ElementType>();
+        densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 0, 0.05);
+        densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 1, 0.5);
+        densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 2, 0.95);
+    }
+
+    virtual void check_n_models(std::size_t n_models) const
+    {
+        if (!(n_models > 1))
+            throw densitas::densitas_error("number of models must be larger than one");
+    }
+
     static void train_model(ModelType& model, std::size_t model_index, MatrixType features, const VectorType& y, const VectorType& trained_quantiles)
     {
         const auto lower = densitas::vector_adapter::get_element<ElementType>(trained_quantiles, model_index);
@@ -200,12 +215,6 @@ protected:
         }
         const auto quants = densitas::math::quantiles_weighted<ElementType>(centers, weights, quantiles, accuracy);
         densitas::core::assign_vector_to_row<ElementType>(prediction, event_index, quants);
-    }
-
-    void check_n_models(std::size_t n_models) const
-    {
-        if (!(n_models > 1))
-            throw densitas::densitas_error("number of models must be larger than one");
     }
 
 };
