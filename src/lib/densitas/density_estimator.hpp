@@ -179,6 +179,10 @@ protected:
     VectorType predicted_quantiles_;
     ElementType accuracy_predicted_quantiles_;
 
+    virtual void on_train_status(std::size_t) {}
+
+    virtual void on_predict_status(std::size_t) {}
+
     static void train_model(ModelType& model, std::size_t model_index, MatrixType features, const VectorType& y, const VectorType& trained_quantiles)
     {
         const auto lower = densitas::vector_adapter::get_element<ElementType>(trained_quantiles, model_index);
@@ -203,12 +207,6 @@ protected:
         if (!(n_models > 1))
             throw densitas::densitas_error("number of models must be larger than one");
     }
-
-    virtual void on_train_status(std::size_t)
-    {}
-
-    virtual void on_predict_status(std::size_t)
-    {}
 
 };
 
