@@ -161,7 +161,7 @@ private:
 };
 
 
-using estimator_t = densitas::density_estimator<classifier, matrix_t, vector_t>;
+typedef densitas::density_estimator<classifier, matrix_t, vector_t> estimator_t;
 
 std::string dataset()
 {
