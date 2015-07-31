@@ -1,6 +1,7 @@
 #pragma once
 #include <libunittest/all.hpp>
 #include <densitas/all.hpp>
+#define ARMA_DONT_USE_CXX11
 #include <armadillo>
 using namespace unittest::assertions;
 
