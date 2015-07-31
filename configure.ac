@@ -21,6 +21,21 @@ LIBS="$PTHREAD_LIBS $LIBS"
 AM_CXXFLAGS="$AM_CXXFLAGS $PTHREAD_CFLAGS"
 CC="$PTHREAD_CC"
 
+# Check for std::this_thread::sleep_for
+AC_CACHE_CHECK(
+    [for std::this_thread::sleep_for],
+    [lu_cv_func_this_thread_sleep_for],
+    [AC_COMPILE_IFELSE(
+        [AC_LANG_SOURCE[
+        #include <thread>
+        #include <chrono>
+        void func() { std::this_thread::sleep_for(std::chrono::seconds(1)); }]],
+        [lu_cv_func_this_thread_sleep_for=yes],
+    [lu_cv_func_this_thread_sleep_for=no])])
+if test x"$lu_cv_func_this_thread_sleep_for" = x"no"; then
+    AM_CXXFLAGS="$AM_CXXFLAGS -D_GLIBCXX_USE_NANOSLEEP"
+fi
+
 # debug compilation support
 AC_MSG_CHECKING([whether to build with debug information])
 AC_ARG_ENABLE([debug],
