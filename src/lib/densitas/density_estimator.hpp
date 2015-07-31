@@ -170,7 +170,7 @@ public:
     density_estimator(density_estimator&&) = delete;
     density_estimator& operator=(density_estimator&&) = delete;
 
-    virtual ~density_estimator() = default;
+    virtual ~density_estimator() {}
 
 protected:
 
