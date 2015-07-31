@@ -3,7 +3,9 @@
 
 struct tpool : densitas::core::thread_pool {
 
-    using densitas::core::thread_pool::thread_pool;
+    tpool(int max_threads, std::size_t check_interval_ms)
+    : densitas::core::thread_pool(max_threads, check_interval_ms)
+    {}
 
     std::size_t get_max_threads()
     {
