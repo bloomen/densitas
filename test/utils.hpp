@@ -105,7 +105,7 @@ assert_equal_containers(const matrix_t& expected,
     assert_equal(expected.n_rows, actual.n_rows, "n_rows don't match! ", message...);
     assert_equal(expected.n_cols, actual.n_cols, "n_cols don't match! ", message...);
     for (std::size_t i=0; i<expected.n_rows; ++i) {
-        if (!unittest::core::is_containers_equal(vector_t(expected.row(i).t()), vector_t(actual.row(i).t()))) {
+        if (!unittest::core::is_containers_equal(arma::rowvec(expected.row(i)), arma::rowvec(actual.row(i)))) {
             const std::string text = "matrices are not equal";
             unittest::fail(UNITTEST_FUNC, text, message...);
         }
@@ -122,7 +122,7 @@ assert_approx_equal_containers(const matrix_t& expected,
     assert_equal(expected.n_rows, actual.n_rows, "n_rows don't match! ", message...);
     assert_equal(expected.n_cols, actual.n_cols, "n_cols don't match! ", message...);
     for (std::size_t i=0; i<expected.n_rows; ++i) {
-        if (!unittest::core::is_containers_approx_equal(vector_t(expected.row(i).t()), vector_t(actual.row(i).t()), eps)) {
+        if (!unittest::core::is_containers_approx_equal(arma::rowvec(expected.row(i)), arma::rowvec(actual.row(i)), eps)) {
             const std::string text = "matrices are not approx. equal";
             unittest::fail(UNITTEST_FUNC, text, message...);
         }
