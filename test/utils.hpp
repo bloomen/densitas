@@ -10,6 +10,24 @@ typedef arma::vec vector_t;
 typedef arma::mat matrix_t;
 
 
+inline
+vector_t mkcol(std::vector<double> data)
+{
+    vector_t col(data.size());
+    std::copy(data.begin(), data.end(), col.begin());
+    return col;
+}
+
+
+inline
+arma::rowvec mkrow(std::vector<double> data)
+{
+    arma::rowvec row(data.size());
+    std::copy(data.begin(), data.end(), row.begin());
+    return row;
+}
+
+
 struct mock_model {
 
     vector_t prediction;

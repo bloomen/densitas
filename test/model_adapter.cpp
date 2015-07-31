@@ -6,7 +6,7 @@ COLLECTION(model_adapter) {
 TEST(test_train) {
     auto model = mock_model();
     auto X = matrix_t(1, 2);
-    X.row(0) = vector_t{-1, -2}.t();
+    X.row(0) = mkrow({-1, -2});
     auto y = vector_t{3, 4.5};
     densitas::model_adapter::train(model, X, y);
     assert_equal_containers(X, model.train_X, SPOT);
@@ -15,9 +15,9 @@ TEST(test_train) {
 
 TEST(test_predict_proba) {
     auto model = mock_model();
-    model.prediction = vector_t{3, 4};
+    model.prediction = mkcol({3, 4});
     auto X = matrix_t(1, 2);
-    X.row(0) = vector_t{-1, -2}.t();
+    X.row(0) = mkrow({-1, -2});
     const auto prediction = densitas::model_adapter::predict_proba<vector_t>(model, X);
     assert_equal_containers(model.prediction, prediction, SPOT);
 }

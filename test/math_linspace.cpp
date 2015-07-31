@@ -10,7 +10,7 @@ TEST(test_happy_path) {
     const double end = 1;
     const std::size_t n = 5;
     const auto linspace = function(start, end, n);
-    const auto expected = vector_t{0, 0.25, 0.5, 0.75, 1};
+    const auto expected = mkcol({0, 0.25, 0.5, 0.75, 1});
     assert_equal_containers(expected, linspace, SPOT);
 }
 

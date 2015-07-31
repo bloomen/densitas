@@ -7,9 +7,9 @@ auto function = densitas::core::predict_proba_for_row<double, vector_t, matrix_t
 
 TEST(test_happy_path) {
     auto model = mock_model();
-    model.prediction = vector_t{0.666};
-    const auto row1 = vector_t{1, 2, 3};
-    const auto row2 = vector_t{10, 20, 30};
+    model.prediction = mkcol({0.666});
+    const auto row1 = mkcol({1, 2, 3});
+    const auto row2 = mkcol({10, 20, 30});
     auto X = matrix_t(2, 3);
     X.row(0) = row1.t();
     X.row(1) = row2.t();
