@@ -139,7 +139,7 @@ public:
      *  checks of whether the thread pool can accept another thread
      * @return A matrix of shape (n_events, n_predicted_quantiles)
      */
-    MatrixType predict(const MatrixType& X, int threads=1, std::size_t check_ms=10)
+    MatrixType predict(const MatrixType& X, int threads=1, std::size_t check_ms=5)
     {
         check_n_models(models_.size());
         const auto n_rows = densitas::matrix_adapter::n_rows(X);
