@@ -38,10 +38,7 @@ public:
      * Constructor
      */
     density_estimator()
-    : models_(),
-      trained_centers_(densitas::vector_adapter::construct_uninitialized<VectorType>(0)),
-      predicted_quantiles_(densitas::vector_adapter::construct_uninitialized<VectorType>(3)),
-      accuracy_predicted_quantiles_(1e-2)
+    : models_(), trained_centers_(), predicted_quantiles_(), accuracy_predicted_quantiles_(0)
     {
         init();
     }
@@ -52,10 +49,7 @@ public:
      * @param n_models The number of models to use
      */
     density_estimator(const ModelType& model, std::size_t n_models)
-    : models_(),
-      trained_centers_(densitas::vector_adapter::construct_uninitialized<VectorType>(0)),
-      predicted_quantiles_(densitas::vector_adapter::construct_uninitialized<VectorType>(3)),
-      accuracy_predicted_quantiles_(1e-2)
+    : models_(), trained_centers_(), predicted_quantiles_(), accuracy_predicted_quantiles_(0)
     {
         init();
         set_models(model, n_models);
@@ -187,6 +181,9 @@ protected:
     virtual void init()
     {
         densitas::core::check_element_type<ElementType>();
+        accuracy_predicted_quantiles_ = 1e-2;
+        trained_centers_ = densitas::vector_adapter::construct_uninitialized<VectorType>(0);
+        predicted_quantiles_ = densitas::vector_adapter::construct_uninitialized<VectorType>(3);
         densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 0, 0.05);
         densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 1, 0.5);
         densitas::vector_adapter::set_element<ElementType>(predicted_quantiles_, 2, 0.95);
