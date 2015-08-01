@@ -115,17 +115,18 @@ public:
         const auto quantiles = densitas::math::linspace<VectorType, ElementType>(0, 1, models_.size() + 1);
         const auto trained_quantiles = densitas::math::quantiles<ElementType>(y, quantiles);
         trained_centers_ = densitas::math::centers<ElementType>(y, trained_quantiles);
+        const auto params = train_params{y, trained_quantiles};
         if (threads > 1) {
             densitas::core::thread_pool pool(threads, check_ms);
             for (std::size_t i=0; i<models_.size(); ++i) {
                 pool.wait_for_slot();
                 on_train_status(i);
-                pool.launch_new(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(y), std::ref(trained_quantiles));
+                pool.launch_new(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(params));
             }
         } else {
             for (std::size_t i=0; i<models_.size(); ++i) {
                 on_train_status(i);
-                density_estimator::train_model(models_[i], i, X, y, trained_quantiles);
+                density_estimator::train_model(models_[i], i, X, params);
             }
         }
     }
@@ -144,17 +145,18 @@ public:
         const auto n_rows = densitas::matrix_adapter::n_rows(X);
         const auto n_quantiles = densitas::vector_adapter::n_elements(predicted_quantiles_);
         auto prediction = densitas::matrix_adapter::construct_uninitialized<MatrixType>(n_rows, n_quantiles);
+        const auto params = predict_params{X, trained_centers_, predicted_quantiles_, accuracy_predicted_quantiles_};
         if (threads > 1) {
             densitas::core::thread_pool pool(threads, check_ms);
             for (std::size_t i=0; i<n_rows; ++i) {
                 pool.wait_for_slot();
                 on_predict_status(i);
-                pool.launch_new(density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(X), std::ref(trained_centers_), std::ref(predicted_quantiles_), accuracy_predicted_quantiles_);
+                pool.launch_new(density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(params));
             }
         } else {
             for (std::size_t i=0; i<n_rows; ++i) {
                 on_predict_status(i);
-                density_estimator::predict_event(prediction, models_, i, X, trained_centers_, predicted_quantiles_, accuracy_predicted_quantiles_);
+                density_estimator::predict_event(prediction, models_, i, params);
             }
         }
         return prediction;
@@ -195,22 +197,34 @@ protected:
             throw densitas::densitas_error("number of models must be larger than one");
     }
 
-    static void train_model(ModelType& model, std::size_t model_index, MatrixType features, const VectorType& y, const VectorType& trained_quantiles)
+    struct train_params {
+        const VectorType& y;
+        const VectorType& trained_quantiles;
+    };
+
+    static void train_model(ModelType& model, std::size_t model_index, MatrixType features, const train_params& params)
     {
-        const auto lower = densitas::vector_adapter::get_element<ElementType>(trained_quantiles, model_index);
-        const auto upper = densitas::vector_adapter::get_element<ElementType>(trained_quantiles, model_index + 1);
-        auto target = densitas::math::make_classification_target<ModelType>(y, lower, upper);
+        const auto lower = densitas::vector_adapter::get_element<ElementType>(params.trained_quantiles, model_index);
+        const auto upper = densitas::vector_adapter::get_element<ElementType>(params.trained_quantiles, model_index + 1);
+        auto target = densitas::math::make_classification_target<ModelType>(params.y, lower, upper);
         densitas::model_adapter::train(model, features, target);
     }
 
-    static void predict_event(MatrixType& prediction, std::vector<ModelType>& models, std::size_t event_index, const MatrixType& features, const VectorType& centers, const VectorType& quantiles, double accuracy)
+    struct predict_params {
+        const MatrixType& features;
+        const VectorType& centers;
+        const VectorType& quantiles;
+        const double accuracy;
+    };
+
+    static void predict_event(MatrixType& prediction, std::vector<ModelType>& models, std::size_t event_index, const predict_params& params)
     {
         auto weights = densitas::vector_adapter::construct_uninitialized<VectorType>(models.size());
         for (std::size_t j=0; j<models.size(); ++j) {
-            const auto prob_value = densitas::core::predict_proba_for_row<ElementType, VectorType>(models[j], features, event_index);
+            const auto prob_value = densitas::core::predict_proba_for_row<ElementType, VectorType>(models[j], params.features, event_index);
             densitas::vector_adapter::set_element<ElementType>(weights, j, prob_value);
         }
-        const auto quants = densitas::math::quantiles_weighted<ElementType>(centers, weights, quantiles, accuracy);
+        const auto quants = densitas::math::quantiles_weighted<ElementType>(params.centers, weights, params.quantiles, params.accuracy);
         densitas::core::assign_vector_to_row<ElementType>(prediction, event_index, quants);
     }
 
