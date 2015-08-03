@@ -30,7 +30,7 @@ template<typename ElementType, typename VectorType>
 ElementType get_element(const VectorType& vector, std::size_t index)
 {
     densitas::core::check_element_type<ElementType>();
-    return static_cast<ElementType>(vector(index));
+    return vector(index);
 }
 
 /**
