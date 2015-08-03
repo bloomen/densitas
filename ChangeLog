@@ -1,3 +1,11 @@
+densitas (1.1.0) stable; urgency=low
+
+  * simpified matrix and vector adapter 
+  * improved interfaces for train and predict status methods
+  * use of uniform initialization
+
+ -- Christian Blume <chr.blume@gmail.com>  Mon, 3 Aug 2015 13:00:00 -0700
+
 densitas (1.0.0) stable; urgency=low
 
   * made code changes to support gcc >= 4.6
