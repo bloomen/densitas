@@ -17,3 +17,5 @@ To build and run the tests the following libraries are required:
 - libunittest (http://libunittest.sourceforge.net)
 
 densitas itself has no dependencies except for the standard library.
+Supported compilers are: g++ (>=4.6), clang++ (>=3.2), icc (>=14)
+ 
