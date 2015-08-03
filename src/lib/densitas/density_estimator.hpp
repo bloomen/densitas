@@ -109,7 +109,7 @@ public:
      * @param check_ms If multi-threaded, is the number of ms to wait between
      *  checks of whether the thread pool can accept another thread
      */
-    void train(const MatrixType& X, const VectorType& y, int threads=1, std::size_t check_ms=100)
+    void train(const MatrixType& X, const VectorType& y, int threads=1, int check_ms=100)
     {
         check_n_models(models_.size());
         const auto quantiles = densitas::math::linspace<VectorType, ElementType>(0, 1, models_.size() + 1);
@@ -120,12 +120,12 @@ public:
             densitas::core::thread_pool pool(threads, check_ms);
             for (std::size_t i=0; i<models_.size(); ++i) {
                 pool.wait_for_slot();
-                on_train_status(i);
+                on_train_status(models_[i], i, X, params);
                 pool.launch_new(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(params));
             }
         } else {
             for (std::size_t i=0; i<models_.size(); ++i) {
-                on_train_status(i);
+                on_train_status(models_[i], i, X, params);
                 density_estimator::train_model(models_[i], i, X, params);
             }
         }
@@ -139,7 +139,7 @@ public:
      *  checks of whether the thread pool can accept another thread
      * @return A matrix of shape (n_events, n_predicted_quantiles)
      */
-    MatrixType predict(const MatrixType& X, int threads=1, std::size_t check_ms=5)
+    MatrixType predict(const MatrixType& X, int threads=1, int check_ms=5)
     {
         check_n_models(models_.size());
         const auto n_rows = densitas::matrix_adapter::n_rows(X);
@@ -150,12 +150,12 @@ public:
             densitas::core::thread_pool pool(threads, check_ms);
             for (std::size_t i=0; i<n_rows; ++i) {
                 pool.wait_for_slot();
-                on_predict_status(i);
+                on_predict_status(prediction, models_, i, params);
                 pool.launch_new(density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(params));
             }
         } else {
             for (std::size_t i=0; i<n_rows; ++i) {
-                on_predict_status(i);
+                on_predict_status(prediction, models_, i, params);
                 density_estimator::predict_event(prediction, models_, i, params);
             }
         }
@@ -176,9 +176,21 @@ protected:
     VectorType predicted_quantiles_;
     ElementType accuracy_predicted_quantiles_;
 
-    virtual void on_train_status(std::size_t) {}
+    struct train_params {
+        const VectorType& y;
+        const VectorType& trained_quantiles;
+    };
 
-    virtual void on_predict_status(std::size_t) {}
+    struct predict_params {
+        const MatrixType& features;
+        const VectorType& centers;
+        const VectorType& quantiles;
+        const double accuracy;
+    };
+
+    virtual void on_train_status(const ModelType&, std::size_t, const MatrixType&, const train_params&) {}
+
+    virtual void on_predict_status(const MatrixType&, const std::vector<ModelType>&, std::size_t, const predict_params&) {}
 
     virtual void init()
     {
@@ -197,11 +209,6 @@ protected:
             throw densitas::densitas_error("number of models must be larger than one");
     }
 
-    struct train_params {
-        const VectorType& y;
-        const VectorType& trained_quantiles;
-    };
-
     static void train_model(ModelType& model, std::size_t model_index, MatrixType features, const train_params& params)
     {
         const auto lower = densitas::vector_adapter::get_element<ElementType>(params.trained_quantiles, model_index);
@@ -209,13 +216,6 @@ protected:
         auto target = densitas::math::make_classification_target<ModelType>(params.y, lower, upper);
         densitas::model_adapter::train(model, features, target);
     }
-
-    struct predict_params {
-        const MatrixType& features;
-        const VectorType& centers;
-        const VectorType& quantiles;
-        const double accuracy;
-    };
 
     static void predict_event(MatrixType& prediction, std::vector<ModelType>& models, std::size_t event_index, const predict_params& params)
     {

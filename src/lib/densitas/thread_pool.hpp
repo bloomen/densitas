@@ -30,7 +30,7 @@ private:
 class thread_pool {
 public:
 
-    thread_pool(int max_threads, std::size_t check_interval_ms);
+    thread_pool(int max_threads, int check_interval_ms);
 
     virtual ~thread_pool();
 
