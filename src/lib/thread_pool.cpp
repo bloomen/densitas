@@ -20,7 +20,7 @@ thread_pool::~thread_pool()
 
 thread_pool::thread_pool(int max_threads, std::size_t check_interval_ms)
 : max_threads_(max_threads<1 ? 1 : max_threads),
-  check_interval_ms_(check_interval_ms), threads_()
+  check_interval_ms_(check_interval_ms), threads_{}
 {}
 
 void thread_pool::wait_for_slot()

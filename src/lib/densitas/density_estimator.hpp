@@ -38,7 +38,7 @@ public:
      * Constructor
      */
     density_estimator()
-    : models_(), trained_centers_(), predicted_quantiles_(), accuracy_predicted_quantiles_(0)
+    : models_{}, trained_centers_{}, predicted_quantiles_{}, accuracy_predicted_quantiles_{}
     {
         init();
     }
@@ -49,7 +49,7 @@ public:
      * @param n_models The number of models to use
      */
     density_estimator(const ModelType& model, std::size_t n_models)
-    : models_(), trained_centers_(), predicted_quantiles_(), accuracy_predicted_quantiles_(0)
+    : models_{}, trained_centers_{}, predicted_quantiles_{}, accuracy_predicted_quantiles_{}
     {
         init();
         set_models(model, n_models);
