@@ -39,7 +39,7 @@ template<typename ElementType, typename MatrixType>
 ElementType get_element(const MatrixType& matrix, std::size_t row_index, std::size_t col_index)
 {
     densitas::core::check_element_type<ElementType>();
-    return static_cast<ElementType>(matrix(row_index, col_index));
+    return matrix(row_index, col_index);
 }
 
 /**
