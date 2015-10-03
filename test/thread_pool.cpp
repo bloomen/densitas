@@ -85,4 +85,52 @@ TEST(test_launch_many) {
     assert_true(func.called, SPOT);
 }
 
+struct cond_var_mock {
+
+    bool called;
+
+    cond_var_mock()
+    : called{false}
+    {}
+
+    void notify_one()
+    {
+        called = true;
+    }
+
+};
+
+
+COLLECTION(functor_runner) {
+
+struct fixture {
+
+    std::shared_ptr<std::atomic_bool> done_;
+    cond_var_mock cond_var_;
+    densitas::core::functor_runner<cond_var_mock> runner_;
+    bool called_;
+
+    fixture()
+    : done_(std::make_shared<std::atomic_bool>(false)),
+      cond_var_{}, runner_{done_, cond_var_}, called_{false}
+    {}
+
+    virtual ~fixture() UNITTEST_NOEXCEPT_FALSE
+    {
+        assert_true(called_, SPOT);
+        assert_true(*done_, SPOT);
+        assert_true(cond_var_.called, SPOT);
+    }
+
+};
+
+TEST_FIXTURE(fixture, test_with_no_args) {
+    runner_([this](){ called_ = true; });
+}
+
+TEST_FIXTURE(fixture, test_with_multiple_args) {
+    runner_([this](int, double){ called_ = true; }, 42, 1.3);
+}
+
+}
 }

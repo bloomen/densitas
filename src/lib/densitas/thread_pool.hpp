@@ -37,7 +37,7 @@ class functor_runner {
 public:
 
     functor_runner(std::shared_ptr<std::atomic_bool> done, ConditionVariable& cond_var)
-    : done_(done), cond_var_(cond_var)
+    : done_{done}, cond_var_(cond_var)
     {}
 
     template<typename Functor, typename... Args>
