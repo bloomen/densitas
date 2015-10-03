@@ -135,4 +135,11 @@ TEST(test_clone) {
     assert_true(cloned, SPOT);
 }
 
+TEST(test_typedefs) {
+    static_assert(std::is_same<mock_model, typename estimator_t::model_type>::value, "");
+    static_assert(std::is_same<matrix_t, typename estimator_t::matrix_type>::value, "");
+    static_assert(std::is_same<vector_t, typename estimator_t::vector_type>::value, "");
+    static_assert(std::is_same<double, typename estimator_t::element_type>::value, "");
+}
+
 }
