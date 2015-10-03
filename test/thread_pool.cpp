@@ -162,11 +162,10 @@ TEST(test_notify_one_and_wait) {
 
 TEST(test_notify_one_and_wait_in_separate_threads) {
     cv cond_var;
-    std::thread thread([&cond_var]() {
+    std::thread([&cond_var]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
         cond_var.notify_one();
-    });
-    thread.detach();
+    }).detach();
     cond_var.wait();
     assert_false(cond_var.get_flag(), SPOT);
 }
