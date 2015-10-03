@@ -7,7 +7,6 @@
 #include "manipulation.hpp"
 #include "thread_pool.hpp"
 #include <vector>
-#include <memory>
 
 
 namespace densitas {
