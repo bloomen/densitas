@@ -1,5 +1,4 @@
 #include "densitas/thread_pool.hpp"
-#include <chrono>
 
 
 namespace densitas {
