@@ -106,10 +106,9 @@ public:
      * @param X A matrix of shape (n_events, n_features)
      * @param y A vector of shape (n_events)
      * @param threads Max number of threads to launch, single-threaded if <= 1
-     * @param check_ms If multi-threaded, is the number of ms to wait between
      *  checks of whether the thread pool can accept another thread
      */
-    void train(const MatrixType& X, const VectorType& y, int threads=1, int check_ms=100)
+    void train(const MatrixType& X, const VectorType& y, int threads=1)
     {
         check_n_models(models_.size());
         const auto quantiles = densitas::math::linspace<VectorType, ElementType>(0, 1, models_.size() + 1);
@@ -117,7 +116,7 @@ public:
         trained_centers_ = densitas::math::centers<ElementType>(y, trained_quantiles);
         const auto params = train_params{y, trained_quantiles};
         if (threads > 1) {
-            densitas::core::thread_pool pool(threads, check_ms);
+            densitas::core::thread_pool pool{threads};
             for (std::size_t i=0; i<models_.size(); ++i) {
                 pool.wait_for_slot();
                 on_train_status(models_[i], i, X, params);
@@ -135,11 +134,9 @@ public:
      * Predicts events using this trained density estimator
      * @param X A matrix of shape (n_events, n_features)
      * @param threads Max number of threads to launch, single-threaded if <= 1
-     * @param check_ms If multi-threaded, is the number of ms to wait between
-     *  checks of whether the thread pool can accept another thread
      * @return A matrix of shape (n_events, n_predicted_quantiles)
      */
-    MatrixType predict(const MatrixType& X, int threads=1, int check_ms=5)
+    MatrixType predict(const MatrixType& X, int threads=1)
     {
         check_n_models(models_.size());
         const auto n_rows = densitas::matrix_adapter::n_rows(X);
@@ -147,7 +144,7 @@ public:
         auto prediction = densitas::matrix_adapter::construct_uninitialized<MatrixType>(n_rows, n_quantiles);
         const auto params = predict_params{X, trained_centers_, predicted_quantiles_, accuracy_predicted_quantiles_};
         if (threads > 1) {
-            densitas::core::thread_pool pool(threads, check_ms);
+            densitas::core::thread_pool pool{threads};
             for (std::size_t i=0; i<n_rows; ++i) {
                 pool.wait_for_slot();
                 on_predict_status(prediction, models_, i, params);

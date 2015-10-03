@@ -6,10 +6,30 @@ namespace densitas {
 namespace core {
 
 
-runner::runner(std::shared_ptr<std::atomic_bool> done)
-: done_(std::move(done))
+condition_variable::condition_variable()
+: flag_{false}, cond_var_{}, mutex_{}
 {}
 
+void condition_variable::notify_one()
+{
+    {
+        std::lock_guard<std::mutex> lock{mutex_};
+        flag_ = true;
+    }
+    cond_var_.notify_one();
+}
+
+void condition_variable::wait()
+{
+    std::unique_lock<std::mutex> lock{mutex_};
+    cond_var_.wait(lock, [this]() { return this->flag_; });
+    flag_ = false;
+}
+
+
+thread_pool::thread_pool(int max_threads)
+: max_threads_(max_threads<1 ? 1 : max_threads), threads_{}, cond_var_{}
+{}
 
 thread_pool::~thread_pool()
 {
@@ -18,14 +38,10 @@ thread_pool::~thread_pool()
     }
 }
 
-thread_pool::thread_pool(int max_threads, int check_interval_ms)
-: max_threads_(max_threads<1 ? 1 : max_threads),
-  check_interval_ms_(check_interval_ms<0 ? 0 : check_interval_ms), threads_{}
-{}
-
 void thread_pool::wait_for_slot()
 {
     while (threads_.size() >= max_threads_) {
+        cond_var_.wait();
         for (auto it=threads_.begin(); it!=threads_.cend();) {
             if (it->first->load()) {
                 it->second.join();
@@ -34,8 +50,6 @@ void thread_pool::wait_for_slot()
                 ++it;
             }
         }
-        if (threads_.size() >= max_threads_)
-            std::this_thread::sleep_for(std::chrono::milliseconds(check_interval_ms_));
     }
 }
 

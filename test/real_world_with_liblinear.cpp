@@ -218,11 +218,11 @@ TEST(test_density_estimator_predict_more_quantiles) {
 
     const std::size_t n_models = 9;
     estimator_t estimator(model, n_models);
-    estimator.train(X, y, 3, 0);
+    estimator.train(X, y, 3);
 
     const auto quantiles = mkcol({0.01, 0.05, 0.5, 0.95, 0.99});
     estimator.predicted_quantiles(quantiles);
-    const matrix_t prediction = estimator.predict(X, 4, 0);
+    const matrix_t prediction = estimator.predict(X, 4);
     assert_equal(y.n_elem, prediction.n_rows, SPOT);
     assert_equal(quantiles.n_elem, prediction.n_cols, SPOT);
 }

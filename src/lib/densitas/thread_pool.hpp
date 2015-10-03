@@ -3,34 +3,61 @@
 #include <memory>
 #include <atomic>
 #include <list>
+#include <mutex>
+#include <condition_variable>
 
 
 namespace densitas {
 namespace core {
 
 
-class runner {
+class condition_variable {
 public:
 
-    explicit
-    runner(std::shared_ptr<std::atomic_bool> done);
+    condition_variable();
+
+    void notify_one();
+
+    void wait();
+
+    condition_variable(const condition_variable&) = delete;
+    condition_variable& operator=(const condition_variable&) = delete;
+    condition_variable(condition_variable&&) = delete;
+    condition_variable& operator=(condition_variable&&) = delete;
+
+private:
+    bool flag_;
+    std::condition_variable cond_var_;
+    std::mutex mutex_;
+};
+
+
+template<typename ConditionVariable=densitas::core::condition_variable>
+class functor_runner {
+public:
+
+    functor_runner(std::shared_ptr<std::atomic_bool> done, ConditionVariable& cond_var)
+    : done_(done), cond_var_(cond_var)
+    {}
 
     template<typename Functor, typename... Args>
     void operator()(Functor&& functor, Args&&... args)
     {
-        functor(std::forward<Args>(args)...);
-        done_->store(true);
+        std::forward<Functor>(functor)(std::forward<Args>(args)...);
+        *done_ = true;
+        cond_var_.notify_one();
     }
 
 private:
     std::shared_ptr<std::atomic_bool> done_;
+    ConditionVariable& cond_var_;
 };
 
 
 class thread_pool {
 public:
 
-    thread_pool(int max_threads, int check_interval_ms);
+    thread_pool(int max_threads);
 
     virtual ~thread_pool();
 
@@ -41,8 +68,9 @@ public:
     {
         wait_for_slot();
         auto done = std::make_shared<std::atomic_bool>(false);
-        std::thread thread(densitas::core::runner(done), std::forward<Functor>(functor), std::forward<Args>(args)...);
-        threads_.push_back(std::make_pair(done, std::move(thread)));
+        std::thread thread{densitas::core::functor_runner<>{done, cond_var_},
+                           std::forward<Functor>(functor), std::forward<Args>(args)...};
+        threads_.push_back({done, std::move(thread)});
     }
 
     thread_pool(const thread_pool&) = delete;
@@ -52,8 +80,8 @@ public:
 
 protected:
     const std::size_t max_threads_;
-    const std::size_t check_interval_ms_;
     std::list<std::pair<std::shared_ptr<std::atomic_bool>, std::thread>> threads_;
+    densitas::core::condition_variable cond_var_;
 };
 
 
