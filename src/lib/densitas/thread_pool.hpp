@@ -70,9 +70,8 @@ public:
     {
         wait_for_slot();
         auto done = std::make_shared<std::atomic_bool>(false);
-        std::thread thread{densitas::core::functor_runner<>{done, cond_var_},
-                           std::forward<Functor>(functor), std::forward<Args>(args)...};
-        threads_.push_back({done, std::move(thread)});
+        threads_.emplace_back(done, std::thread{densitas::core::functor_runner<>{done, cond_var_},
+                                                std::forward<Functor>(functor), std::forward<Args>(args)...});
     }
 
     thread_pool(const thread_pool&) = delete;

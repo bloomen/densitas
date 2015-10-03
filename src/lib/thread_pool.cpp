@@ -31,7 +31,7 @@ void condition_variable::wait()
 
 
 thread_pool::thread_pool(int max_threads)
-: max_threads_(max_threads<1 ? 1 : max_threads), threads_{}, cond_var_{}
+: max_threads_{static_cast<size_t>(max_threads<1 ? 1 : max_threads)}, threads_{}, cond_var_{}
 {}
 
 thread_pool::~thread_pool()
