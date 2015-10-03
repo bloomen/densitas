@@ -134,10 +134,12 @@ TEST_FIXTURE(fixture, test_with_multiple_args) {
 }
 
 struct cv : densitas::core::condition_variable {
+
     bool get_flag()
     {
         return flag_;
     }
+
 };
 
 COLLECTION(condition_variable) {
