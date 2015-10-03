@@ -10,6 +10,9 @@ condition_variable::condition_variable()
 : flag_{false}, cond_var_{}, mutex_{}
 {}
 
+condition_variable::~condition_variable()
+{}
+
 void condition_variable::notify_one()
 {
     {

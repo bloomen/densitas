@@ -16,6 +16,8 @@ public:
 
     condition_variable();
 
+    virtual ~condition_variable();
+
     void notify_one();
 
     void wait();
@@ -25,7 +27,7 @@ public:
     condition_variable(condition_variable&&) = delete;
     condition_variable& operator=(condition_variable&&) = delete;
 
-private:
+protected:
     bool flag_;
     std::condition_variable cond_var_;
     std::mutex mutex_;
