@@ -5,8 +5,8 @@
 #include "matrix_adapter.hpp"
 #include "vector_adapter.hpp"
 #include "manipulation.hpp"
-#include <vector>
 #include "task_manager.hpp"
+#include <vector>
 
 
 namespace densitas {
@@ -110,7 +110,6 @@ public:
      * @param X A matrix of shape (n_events, n_features)
      * @param y A vector of shape (n_events)
      * @param threads Max number of threads to launch, single-threaded if <= 1
-     *  checks of whether the thread pool can accept another thread
      */
     void train(const matrix_type& X, const vector_type& y, int threads=1)
     {
@@ -120,11 +119,11 @@ public:
         trained_centers_ = densitas::math::centers<element_type>(y, trained_quantiles);
         const auto params = train_params{y, trained_quantiles};
         if (threads > 1) {
-            densitas::core::task_manager pool{threads};
+            densitas::core::task_manager manager{threads};
             for (std::size_t i=0; i<models_.size(); ++i) {
-                pool.wait_for_slot();
+                manager.wait_for_slot();
                 on_train_status(models_[i], i, X, params);
-                pool.launch_new(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(params));
+                manager.launch_new(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(params));
             }
         } else {
             for (std::size_t i=0; i<models_.size(); ++i) {
@@ -148,11 +147,11 @@ public:
         auto prediction = densitas::matrix_adapter::construct_uninitialized<matrix_type>(n_rows, n_quantiles);
         const auto params = predict_params{X, trained_centers_, predicted_quantiles_, accuracy_predicted_quantiles_};
         if (threads > 1) {
-            densitas::core::task_manager pool{threads};
+            densitas::core::task_manager manager{threads};
             for (std::size_t i=0; i<n_rows; ++i) {
-                pool.wait_for_slot();
+                manager.wait_for_slot();
                 on_predict_status(prediction, models_, i, params);
-                pool.launch_new(density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(params));
+                manager.launch_new(density_estimator::predict_event, std::ref(prediction), std::ref(models_), i, std::ref(params));
             }
         } else {
             for (std::size_t i=0; i<n_rows; ++i) {
