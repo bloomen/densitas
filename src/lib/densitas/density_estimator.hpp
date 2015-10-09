@@ -5,8 +5,8 @@
 #include "matrix_adapter.hpp"
 #include "vector_adapter.hpp"
 #include "manipulation.hpp"
-#include "thread_pool.hpp"
 #include <vector>
+#include "task_manager.hpp"
 
 
 namespace densitas {
@@ -120,7 +120,7 @@ public:
         trained_centers_ = densitas::math::centers<element_type>(y, trained_quantiles);
         const auto params = train_params{y, trained_quantiles};
         if (threads > 1) {
-            densitas::core::thread_pool pool{threads};
+            densitas::core::task_manager pool{threads};
             for (std::size_t i=0; i<models_.size(); ++i) {
                 pool.wait_for_slot();
                 on_train_status(models_[i], i, X, params);
@@ -148,7 +148,7 @@ public:
         auto prediction = densitas::matrix_adapter::construct_uninitialized<matrix_type>(n_rows, n_quantiles);
         const auto params = predict_params{X, trained_centers_, predicted_quantiles_, accuracy_predicted_quantiles_};
         if (threads > 1) {
-            densitas::core::thread_pool pool{threads};
+            densitas::core::task_manager pool{threads};
             for (std::size_t i=0; i<n_rows; ++i) {
                 pool.wait_for_slot();
                 on_predict_status(prediction, models_, i, params);

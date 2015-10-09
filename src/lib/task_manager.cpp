@@ -1,4 +1,4 @@
-#include "densitas/thread_pool.hpp"
+#include "densitas/task_manager.hpp"
 
 
 namespace densitas {
@@ -29,25 +29,30 @@ void condition_variable::wait()
 }
 
 
-thread_pool::thread_pool(int max_threads)
-: max_threads_{static_cast<size_t>(max_threads<1 ? 1 : max_threads)}, threads_{}, cond_var_{}
+task::task(std::shared_ptr<std::atomic_bool> done, std::thread&& thread)
+: done(done), thread(std::move(thread))
 {}
 
-thread_pool::~thread_pool()
+
+task_manager::task_manager(int max_tasks)
+: max_tasks_{static_cast<size_t>(max_tasks<1 ? 1 : max_tasks)}, tasks_{}, cond_var_{}
+{}
+
+task_manager::~task_manager()
 {
-    for (auto& thread : threads_) {
-        thread.second.join();
+    for (auto& task : tasks_) {
+        task.thread.join();
     }
 }
 
-void thread_pool::wait_for_slot()
+void task_manager::wait_for_slot()
 {
-    while (threads_.size() >= max_threads_) {
+    while (tasks_.size() >= max_tasks_) {
         cond_var_.wait();
-        for (auto it=threads_.begin(); it!=threads_.cend();) {
-            if (it->first->load()) {
-                it->second.join();
-                threads_.erase(it++);
+        for (auto it=tasks_.begin(); it!=tasks_.cend();) {
+            if (it->done->load()) {
+                it->thread.join();
+                tasks_.erase(it++);
             } else {
                 ++it;
             }

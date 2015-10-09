@@ -1,7 +1,7 @@
 # the library names to build
 lib_LTLIBRARIES = libdensitas.la
 
-libdensitas_la_LDFLAGS = -version-info 2:0:0 -no-undefined
+libdensitas_la_LDFLAGS = -version-info 3:0:0 -no-undefined
 
 # where to install the headers on the system
 libdensitas_ladir = $(includedir)/densitas
@@ -17,11 +17,11 @@ densitas/matrix_adapter.hpp \
 densitas/vector_adapter.hpp \
 densitas/type_check.hpp \
 densitas/manipulation.hpp \
-densitas/thread_pool.hpp \
+densitas/task_manager.hpp \
 densitas/version.hpp
 
 # the sources to add to the library and to add to the source distribution
 libdensitas_la_SOURCES = \
 densitas_error.cpp \
-thread_pool.cpp \
+task_manager.cpp \
 version.cpp

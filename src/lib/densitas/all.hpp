@@ -6,6 +6,6 @@
 #include "matrix_adapter.hpp"
 #include "vector_adapter.hpp"
 #include "manipulation.hpp"
+#include "task_manager.hpp"
 #include "type_check.hpp"
-#include "thread_pool.hpp"
 #include "version.hpp"

@@ -56,12 +56,19 @@ private:
 };
 
 
-class thread_pool {
+struct task {
+    task(std::shared_ptr<std::atomic_bool> done, std::thread&& thread);
+    std::shared_ptr<std::atomic_bool> done;
+    std::thread thread;
+};
+
+
+class task_manager {
 public:
 
-    thread_pool(int max_threads);
+    task_manager(int max_tasks);
 
-    virtual ~thread_pool();
+    virtual ~task_manager();
 
     void wait_for_slot();
 
@@ -70,18 +77,18 @@ public:
     {
         wait_for_slot();
         auto done = std::make_shared<std::atomic_bool>(false);
-        threads_.emplace_back(done, std::thread{densitas::core::functor_runner<>{done, cond_var_},
-                                                std::forward<Functor>(functor), std::forward<Args>(args)...});
+        auto runner = densitas::core::functor_runner<>{done, cond_var_};
+        tasks_.emplace_back(done, std::thread{std::move(runner), std::forward<Functor>(functor), std::forward<Args>(args)...});
     }
 
-    thread_pool(const thread_pool&) = delete;
-    thread_pool& operator=(const thread_pool&) = delete;
-    thread_pool(thread_pool&&) = delete;
-    thread_pool& operator=(thread_pool&&) = delete;
+    task_manager(const task_manager&) = delete;
+    task_manager& operator=(const task_manager&) = delete;
+    task_manager(task_manager&&) = delete;
+    task_manager& operator=(task_manager&&) = delete;
 
 protected:
-    const std::size_t max_threads_;
-    std::list<std::pair<std::shared_ptr<std::atomic_bool>, std::thread>> threads_;
+    const std::size_t max_tasks_;
+    std::list<densitas::core::task> tasks_;
     densitas::core::condition_variable cond_var_;
 };
 
