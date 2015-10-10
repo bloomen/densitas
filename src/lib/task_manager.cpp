@@ -30,7 +30,7 @@ void condition_variable::wait()
 
 
 task::task(std::shared_ptr<std::atomic_bool> done, std::thread&& thread)
-: done(done), thread(std::move(thread))
+: done{done}, thread{std::move(thread)}
 {}
 
 
