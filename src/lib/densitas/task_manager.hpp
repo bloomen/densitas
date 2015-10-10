@@ -66,6 +66,7 @@ struct task {
 class task_manager {
 public:
 
+    explicit
     task_manager(int max_tasks);
 
     virtual ~task_manager();

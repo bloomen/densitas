@@ -35,7 +35,7 @@ task::task(std::shared_ptr<std::atomic_bool> done, std::thread&& thread)
 
 
 task_manager::task_manager(int max_tasks)
-: max_tasks_{static_cast<size_t>(max_tasks<1 ? 1 : max_tasks)}, tasks_{}, cond_var_{}
+: max_tasks_{static_cast<std::size_t>(max_tasks<1 ? 1 : max_tasks)}, tasks_{}, cond_var_{}
 {}
 
 task_manager::~task_manager()
