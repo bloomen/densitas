@@ -3,8 +3,8 @@
 
 struct tman : densitas::core::task_manager {
 
-    tman(int max_threads)
-    : densitas::core::task_manager{max_threads}
+    tman(int max_tasks)
+    : densitas::core::task_manager{max_tasks}
     {}
 
     std::size_t get_max_tasks()
