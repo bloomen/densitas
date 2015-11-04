@@ -1,8 +1,18 @@
 #pragma once
+#include <memory>
 
 
 namespace densitas {
 namespace model_adapter {
+
+/**
+ * Clones the given model
+ */
+template<typename ModelType>
+std::unique_ptr<ModelType> clone(const ModelType& model)
+{
+    return model.clone();
+}
 
 /**
  * Trains the model with given features X and target y. y should be

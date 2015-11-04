@@ -11,7 +11,7 @@ struct extended_estimator : estimator_t {
         : estimator_t(model, n_models)
     {}
 
-    std::vector<mock_model> get_models() const
+    const std::vector<std::unique_ptr<mock_model>>& get_models() const
     {
         return models_;
     }
@@ -62,15 +62,15 @@ void make_test_train(bool async)
     const auto centers = estimator->get_trained_centers();
     const auto exp_centers = mkcol({5.5, 8});
     assert_equal_containers(exp_centers, centers, SPOT);
-    const auto models = estimator->get_models();
+    const auto& models = estimator->get_models();
     assert_equal(2u, models.size());
     const auto X = get_X();
-    assert_equal_containers(X, models[0].train_X, SPOT);
-    assert_equal_containers(X, models[1].train_X, SPOT);
+    assert_equal_containers(X, models[0]->train_X, SPOT);
+    assert_equal_containers(X, models[1]->train_X, SPOT);
     const auto target1 = mkcol({dyes, dyes, dno, dno, dno});
     const auto target2 = mkcol({dno, dno, dyes, dyes, dyes});
-    assert_equal_containers(target1, models[0].train_y, SPOT);
-    assert_equal_containers(target2, models[1].train_y, SPOT);
+    assert_equal_containers(target1, models[0]->train_y, SPOT);
+    assert_equal_containers(target2, models[1]->train_y, SPOT);
 }
 
 TEST(test_train) {
@@ -88,7 +88,6 @@ void make_test_predict(bool async)
     const auto X = get_X();
     const auto threads = async ? 3 : 1;
     const auto y_resp = estimator->predict(X, threads);
-    const auto models = estimator->get_models();
     assert_equal(X.n_rows, y_resp.n_rows, SPOT);
     assert_equal(2u, y_resp.n_cols, SPOT);
     auto y_exp = matrix_t(X.n_rows, 2u);

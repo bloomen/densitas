@@ -49,7 +49,7 @@ public:
 
     /**
      * Constructor
-     * @param model A binary classifier. Must implement copy semantics
+     * @param model A binary classifier. Must be clonable
      * @param n_models The number of models to use
      */
     density_estimator(const model_type& model, std::size_t n_models)
@@ -65,7 +65,9 @@ public:
     virtual std::unique_ptr<density_estimator> clone()
     {
         auto estimator = std::unique_ptr<density_estimator>(new density_estimator);
-        estimator->models_ = models_;
+        for (const auto& model : models_) {
+            estimator->models_.emplace_back(densitas::model_adapter::clone(*model));
+        }
         estimator->trained_centers_ = trained_centers_;
         estimator->predicted_quantiles_ = predicted_quantiles_;
         estimator->accuracy_predicted_quantiles_ = accuracy_predicted_quantiles_;
@@ -74,14 +76,16 @@ public:
 
     /**
      * Set the internal models using a reference model object
-     * @param model A binary classifier. Must implement copy semantics
+     * @param model A binary classifier. Must be clonable
      * @param n_models The number of models to use
      */
     void set_models(const model_type& model, std::size_t n_models)
     {
         check_n_models(n_models);
         models_.clear();
-        models_.assign(n_models, model);
+        for (std::size_t i=0; i<n_models; ++i) {
+            models_.emplace_back(densitas::model_adapter::clone(model));
+        }
     }
 
     /**
@@ -122,13 +126,13 @@ public:
             densitas::core::task_manager manager(threads);
             for (std::size_t i=0; i<models_.size(); ++i) {
                 manager.wait_for_slot();
-                on_train_status(models_[i], i, X, params);
-                manager.launch_new(density_estimator::train_model, std::ref(models_[i]), i, X, std::ref(params));
+                on_train_status(*models_[i], i, X, params);
+                manager.launch_new(density_estimator::train_model, std::ref(*models_[i]), i, X, std::ref(params));
             }
         } else {
             for (std::size_t i=0; i<models_.size(); ++i) {
-                on_train_status(models_[i], i, X, params);
-                density_estimator::train_model(models_[i], i, X, params);
+                on_train_status(*models_[i], i, X, params);
+                density_estimator::train_model(*models_[i], i, X, params);
             }
         }
     }
@@ -171,7 +175,7 @@ public:
 
 protected:
 
-    std::vector<model_type> models_;
+    std::vector<std::unique_ptr<model_type>> models_;
     vector_type trained_centers_;
     vector_type predicted_quantiles_;
     element_type accuracy_predicted_quantiles_;
@@ -190,7 +194,7 @@ protected:
 
     virtual void on_train_status(const model_type&, std::size_t, const matrix_type&, const train_params&) {}
 
-    virtual void on_predict_status(const matrix_type&, const std::vector<model_type>&, std::size_t, const predict_params&) {}
+    virtual void on_predict_status(const matrix_type&, const std::vector<std::unique_ptr<model_type>>&, std::size_t, const predict_params&) {}
 
     virtual void init()
     {
@@ -217,11 +221,11 @@ protected:
         densitas::model_adapter::train(model, features, target);
     }
 
-    static void predict_event(matrix_type& prediction, std::vector<model_type>& models, std::size_t event_index, const predict_params& params)
+    static void predict_event(matrix_type& prediction, std::vector<std::unique_ptr<model_type>>& models, std::size_t event_index, const predict_params& params)
     {
         auto weights = densitas::vector_adapter::construct_uninitialized<vector_type>(models.size());
         for (std::size_t j=0; j<models.size(); ++j) {
-            const auto prob_value = densitas::core::predict_proba_for_row<element_type, vector_type>(models[j], params.features, event_index);
+            const auto prob_value = densitas::core::predict_proba_for_row<element_type, vector_type>(*models[j], params.features, event_index);
             densitas::vector_adapter::set_element<element_type>(weights, j, prob_value);
         }
         const auto quants = densitas::math::quantiles_weighted<element_type>(params.centers, weights, params.quantiles, params.accuracy);

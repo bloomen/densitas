@@ -39,6 +39,15 @@ struct mock_model {
         : prediction(), train_y(), train_X()
     {}
 
+    std::unique_ptr<mock_model> clone() const
+    {
+        std::unique_ptr<mock_model> m(new mock_model);
+        m->prediction = prediction;
+        m->train_y = train_y;
+        m->train_X = train_X;
+        return std::move(m);
+    }
+
     void train(matrix_t& X, vector_t& y)
     {
         train_y = y;

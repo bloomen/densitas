@@ -3,6 +3,17 @@
 
 COLLECTION(model_adapter) {
 
+TEST(test_clone) {
+    auto model = mock_model();
+    auto X = matrix_t(1, 2);
+    X.row(0) = mkrow({-1, -2});
+    auto y = mkcol({3, 4.5});
+    densitas::model_adapter::train(model, X, y);
+    auto cloned = densitas::model_adapter::clone(model);
+    assert_equal_containers(X, cloned->train_X, SPOT);
+    assert_equal_containers(y, cloned->train_y, SPOT);
+}
+
 TEST(test_train) {
     auto model = mock_model();
     auto X = matrix_t(1, 2);

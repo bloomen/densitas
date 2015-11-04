@@ -68,24 +68,18 @@ struct classifier {
         init_params();
     }
 
-    // doesn't have to actually copy to work with density_estimator,
-    // it just needs to re-initialize
-    classifier& operator=(const classifier& other)
-    {
-        if (this != &other) {
-            model_.reset();
-            free_param_weights();
-            init_params();
-        }
-        return *this;
-    }
-
+    classifier& operator=(const classifier& other) = delete;
     classifier(classifier&&) = delete;
     classifier& operator=(classifier&&) = delete;
 
     ~classifier()
     {
         free_param_weights();
+    }
+
+    std::unique_ptr<classifier> clone() const
+    {
+        return std::unique_ptr<classifier>{new classifier(*this)};
     }
 
     void train(matrix_t& X, vector_t& y)
