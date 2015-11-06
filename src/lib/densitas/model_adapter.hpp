@@ -11,7 +11,10 @@ namespace model_adapter {
 template<typename ModelType>
 std::unique_ptr<ModelType> clone(const ModelType& model)
 {
-    return std::unique_ptr<ModelType>{dynamic_cast<ModelType*>(model.clone().release())};
+    auto cloned = model.clone();
+    auto dest_ptr = &dynamic_cast<ModelType&>(*cloned.get());
+    cloned.release();
+    return std::unique_ptr<ModelType>{dest_ptr};
 }
 
 /**
