@@ -155,7 +155,17 @@ private:
 };
 
 
-typedef densitas::density_estimator<classifier, matrix_t, vector_t> estimator_t;
+struct estimator_t : densitas::density_estimator<estimator_t, classifier, matrix_t, vector_t> {
+
+    estimator_t()
+    : density_estimator_type{}
+    {}
+
+    estimator_t(const classifier& model, std::size_t n_models)
+    : density_estimator_type{model, n_models}
+    {}
+
+};
 
 std::string dataset()
 {

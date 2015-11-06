@@ -21,6 +21,7 @@ namespace densitas {
  * The performance of the density estimator will depend greatly on the
  * model given by the user.
  *
+ * SubType: The sub-class that is inheriting from density_estimator (CRTP)
  * ModelType: Operations on the model type are defined in model_adapter.hpp.
  *            Specialize the functions in there if your model does things differently
  * MatrixType: Operations on the matrix type are defined in matrix_adapter.hpp.
@@ -29,42 +30,22 @@ namespace densitas {
  *             Specialize the functions in there if your vector does things differently
  * ElementType: Must be a floating point type, e.g., float or double
  */
-template<typename ModelType, typename MatrixType, typename VectorType, typename ElementType=double>
+template<typename SubType, typename ModelType, typename MatrixType, typename VectorType, typename ElementType=double>
 class density_estimator {
 public:
 
+    typedef density_estimator density_estimator_type;
     typedef ModelType model_type;
     typedef MatrixType matrix_type;
     typedef VectorType vector_type;
     typedef ElementType element_type;
 
     /**
-     * Constructor
-     */
-    density_estimator()
-    : models_{}, trained_centers_{}, predicted_quantiles_{}, accuracy_predicted_quantiles_{}
-    {
-        init();
-    }
-
-    /**
-     * Constructor
-     * @param model A binary classifier. Must be clonable
-     * @param n_models The number of models to use
-     */
-    density_estimator(const model_type& model, std::size_t n_models)
-    : models_{}, trained_centers_{}, predicted_quantiles_{}, accuracy_predicted_quantiles_{}
-    {
-        init();
-        set_models(model, n_models);
-    }
-
-    /**
      * Returns a clone of this density estimator
      */
-    virtual std::unique_ptr<density_estimator> clone()
+    virtual std::unique_ptr<density_estimator> clone() const
     {
-        auto estimator = std::unique_ptr<density_estimator>(new density_estimator);
+        auto estimator = std::unique_ptr<SubType>{new SubType};
         for (const auto& model : models_) {
             estimator->models_.emplace_back(densitas::model_adapter::clone(*model));
         }
@@ -174,6 +155,27 @@ public:
     virtual ~density_estimator() {}
 
 protected:
+
+    /**
+     * Constructor
+     */
+    density_estimator()
+    : models_{}, trained_centers_{}, predicted_quantiles_{}, accuracy_predicted_quantiles_{}
+    {
+        init();
+    }
+
+    /**
+     * Constructor
+     * @param model A binary classifier. Must be clonable
+     * @param n_models The number of models to use
+     */
+    density_estimator(const model_type& model, std::size_t n_models)
+    : models_{}, trained_centers_{}, predicted_quantiles_{}, accuracy_predicted_quantiles_{}
+    {
+        init();
+        set_models(model, n_models);
+    }
 
     std::vector<std::unique_ptr<model_type>> models_;
     vector_type trained_centers_;

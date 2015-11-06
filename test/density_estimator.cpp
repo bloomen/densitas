@@ -3,12 +3,15 @@
 
 COLLECTION(density_estimator) {
 
-typedef densitas::density_estimator<mock_model, matrix_t, vector_t> estimator_t;
 
-struct extended_estimator : estimator_t {
+struct estimator_t : densitas::density_estimator<estimator_t, mock_model, matrix_t, vector_t> {
 
-    extended_estimator(const mock_model& model, std::size_t n_models)
-        : estimator_t(model, n_models)
+    estimator_t()
+    : density_estimator_type{}
+    {}
+
+    estimator_t(const mock_model& model, std::size_t n_models)
+    : density_estimator_type{model, n_models}
     {}
 
     const std::vector<std::unique_ptr<mock_model>>& get_models() const
@@ -44,11 +47,11 @@ matrix_t get_X()
     return X;
 }
 
-std::unique_ptr<extended_estimator> train_estimator(bool async=false)
+std::unique_ptr<estimator_t> train_estimator(bool async=false)
 {
     auto model = mock_model();
     model.prediction = mkcol({0.5});
-    auto estimator = std::unique_ptr<extended_estimator>(new extended_estimator(model, 2));
+    auto estimator = std::unique_ptr<estimator_t>(new estimator_t(model, 2));
     const auto X = get_X();
     const auto y = mkcol({5, 6, 7, 8, 9});
     const auto threads = async ? 3 : 1;
@@ -112,7 +115,7 @@ TEST(test_number_of_models_too_small) {
 
 TEST(test_predicted_quantiles_setter) {
     auto model = mock_model();
-    extended_estimator estimator(model, 2);
+    estimator_t estimator(model, 2);
     const auto quantiles = mkcol({0.5, 0.9});
     estimator.predicted_quantiles(quantiles);
     assert_equal_containers(quantiles, estimator.get_predicted_quantiles(), SPOT);
@@ -120,7 +123,7 @@ TEST(test_predicted_quantiles_setter) {
 
 TEST(test_accuracy_predicted_quantiles_setter) {
     auto model = mock_model();
-    extended_estimator estimator(model, 2);
+    estimator_t estimator(model, 2);
     const auto accuracy = 1e-3;
     estimator.accuracy_predicted_quantiles(accuracy);
     assert_equal(accuracy, estimator.get_accuracy_predicted_quantiles(), SPOT);
@@ -130,11 +133,12 @@ TEST(test_clone) {
     auto model = mock_model();
     estimator_t estimator;
     estimator.set_models(model, 2);
-    std::unique_ptr<estimator_t> cloned = estimator.clone();
+    auto cloned = estimator.clone();
     assert_true(cloned, SPOT);
 }
 
 TEST(test_typedefs) {
+    static_assert(std::is_same<densitas::density_estimator<estimator_t, mock_model, matrix_t, vector_t>, typename estimator_t::density_estimator_type>::value, "");
     static_assert(std::is_same<mock_model, typename estimator_t::model_type>::value, "");
     static_assert(std::is_same<matrix_t, typename estimator_t::matrix_type>::value, "");
     static_assert(std::is_same<vector_t, typename estimator_t::vector_type>::value, "");
