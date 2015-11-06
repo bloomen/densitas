@@ -32,7 +32,7 @@ void train(ModelType& model, MatrixType& X, VectorType& y)
  * return probability values between 0 and 1
  */
 template<typename VectorType, typename ModelType, typename MatrixType>
-VectorType predict_proba(ModelType& model, MatrixType& X)
+VectorType predict_proba(const ModelType& model, MatrixType& X)
 {
     return model.predict_proba(X);
 }

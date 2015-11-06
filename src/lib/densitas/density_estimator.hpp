@@ -124,7 +124,7 @@ public:
      * @param threads Max number of threads to launch, single-threaded if <= 1
      * @return A matrix of shape (n_events, n_predicted_quantiles)
      */
-    matrix_type predict(const matrix_type& X, int threads=1)
+    matrix_type predict(const matrix_type& X, int threads=1) const
     {
         check_n_models(models_.size());
         const auto n_rows = densitas::matrix_adapter::n_rows(X);
@@ -194,9 +194,9 @@ protected:
         const double accuracy;
     };
 
-    virtual void on_train_status(const model_type&, std::size_t, const matrix_type&, const train_params&) {}
+    virtual void on_train_status(const model_type&, std::size_t, const matrix_type&, const train_params&) const {}
 
-    virtual void on_predict_status(const matrix_type&, const std::vector<std::unique_ptr<model_type>>&, std::size_t, const predict_params&) {}
+    virtual void on_predict_status(const matrix_type&, const std::vector<std::unique_ptr<model_type>>&, std::size_t, const predict_params&) const {}
 
     virtual void init()
     {
@@ -223,7 +223,7 @@ protected:
         densitas::model_adapter::train(model, features, target);
     }
 
-    static void predict_event(matrix_type& prediction, std::vector<std::unique_ptr<model_type>>& models, std::size_t event_index, const predict_params& params)
+    static void predict_event(matrix_type& prediction, const std::vector<std::unique_ptr<model_type>>& models, std::size_t event_index, const predict_params& params)
     {
         auto weights = densitas::vector_adapter::construct_uninitialized<vector_type>(models.size());
         for (std::size_t j=0; j<models.size(); ++j) {
