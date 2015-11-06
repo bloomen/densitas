@@ -1,4 +1,4 @@
-AC_INIT([densitas],[1.4.0],[chr.blume@gmail.com],[densitas],[http://github.com/bloomen/densitas])
+AC_INIT([densitas],[2.0.0],[chr.blume@gmail.com],[densitas],[http://github.com/bloomen/densitas])
 AC_CONFIG_SRCDIR([src/lib/densitas/all.hpp])
 AC_CONFIG_HEADERS([src/lib/config.hpp])
 AC_CONFIG_MACRO_DIR([m4])

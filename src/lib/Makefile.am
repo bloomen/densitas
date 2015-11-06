@@ -1,7 +1,7 @@
 # the library names to build
 lib_LTLIBRARIES = libdensitas.la
 
-libdensitas_la_LDFLAGS = -version-info 4:0:1 -no-undefined
+libdensitas_la_LDFLAGS = -version-info 4:0:0 -no-undefined
 
 # where to install the headers on the system
 libdensitas_ladir = $(includedir)/densitas
