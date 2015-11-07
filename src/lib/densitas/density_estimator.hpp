@@ -200,6 +200,7 @@ protected:
 
     virtual void init()
     {
+        static_assert(std::is_base_of<density_estimator_type, SubType>::value, "SubType is not inheriting from density_estimator");
         densitas::core::check_element_type<element_type>();
         accuracy_predicted_quantiles_ = 1e-2;
         trained_centers_ = densitas::vector_adapter::construct_uninitialized<vector_type>(0);
